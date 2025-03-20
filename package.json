@@ -1,7 +1,18 @@
 {
   "name": "htc-nav",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'No build needed'",
+    "start": "echo 'Static site'"
+  },
   "dependencies": {
     "crypto-js": "^4.1.1",
-    "node-fetch": "^2.6.7"  // 新增网络请求库
+    "node-fetch": "^2.6.7",
+    "express": "^4.18.2",
+    "axios": "^1.6.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
