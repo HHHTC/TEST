@@ -679,11 +679,7 @@
                                         
                                         try {
                                             // 使用正确的变量名
-                                            const appid = '20250319002309055';        // 替换为实际APPID
-                                            const key = 'z1p_yaGIew1pW4HAqxJC';      // 替换为实际密钥
                                             const salt = Date.now();
-                                            const sign = CryptoJS.MD5(appid + text + salt + key).toString();
-                                
                                             // 使用服务器代理（需部署到Netlify Functions）
                                             const response = await fetch('/.netlify/functions/translate', {
                                                 method: 'POST',
