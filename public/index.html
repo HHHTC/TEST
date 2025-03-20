@@ -662,37 +662,46 @@
                     });
                     
 
-                    document.querySelector('.translate-button').addEventListener('click', async function(e) {
-                            btn.addEventListener('click', async function(e) {
-                                e.preventDefault();
-                                const input = document.querySelector('.search-box input');
-                                const text = input.value.trim();
-                                
-                                if (!text) {
-                                alert('请输入要翻译的内容');
-                                return;
-                                }
-
-                                // 加载状态
-                                const originalContent = this.innerHTML;
-                                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                                try {
-                                        const response = await fetch('/.netlify/functions/translate', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ text })
-                                        });
+                       document.querySelectorAll('.translate-button').forEach(button => {
+                                    button.addEventListener('click', async function(e) {
+                                        e.preventDefault();
+                                        const input = document.querySelector('.search-box input');
+                                        const text = input.value.trim();
                                         
-                                        const data = await response.json();
-                                        input.value = data.trans_result[0].dst;
-                                    }  catch (error) {
-                                console.error('翻译失败:', error);
-                                alert('翻译服务暂时不可用');
-                                } finally {
-                                this.innerHTML = originalContent;
-                                }
-                            });
-                            });
+                                        if (!text) {
+                                            alert('请输入要翻译的内容');
+                                            return;
+                                        }
+                                
+                                        // 显示加载状态
+                                        const originalContent = this.innerHTML;
+                                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                        
+                                        try {
+                                            // 使用正确的变量名
+                                            const appid = '20250319002309055';        // 替换为实际APPID
+                                            const key = 'z1p_yaGIew1pW4HAqxJC';      // 替换为实际密钥
+                                            const salt = Date.now();
+                                            const sign = CryptoJS.MD5(appid + text + salt + key).toString();
+                                
+                                            // 使用服务器代理（需部署到Netlify Functions）
+                                            const response = await fetch('/.netlify/functions/translate', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ text })
+                                            });
+                                            
+                                            const data = await response.json();
+                                            input.value = data.trans_result[0].dst;
+                                            
+                                        } catch (error) {
+                                            console.error('翻译失败:', error);
+                                            alert(`翻译失败: ${error.message}`);
+                                        } finally {
+                                            this.innerHTML = originalContent;
+                                        }
+                                    });
+                                });
             </script>
 </body>
 </html>
