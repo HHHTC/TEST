@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTC导航站</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/md5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="H.ico" type="image/x-icon">
+    <link rel="icon" href="icons/H.ico" type="image/x-icon">
+   
+</head>
+<body>
+    <button id="scrollTopBtn" class="scroll-top-btn">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div class="container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <h1 class="logo">HTC导航站</h1>
+        </header>
+       
+        <!-- 搜索区域 -->
+    
+        <div class="search-section compact-search">
+            <div class="search-engine-tabs">
+                <button class="active">必应</button>
+                <button>百度</button>
+                <button>杨得</button>
+            </div>
+            <div class="search-box">
+                <div class="search-input-group">
+                    <input type="text" placeholder="输入关键词搜索...">
+                    <a class="translate-button" href="#" title="翻译此内容">
+                        <img src="icons/translator.png" alt="翻译" style="height:60%">
+                    </a>
+                </div>
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+            <!-- 新增分类导航栏 -->
+        <div class="category-nav-container">
+            <nav class="category-nav">
+                <ul>
+                    <li class="active">视频资源</li>
+                    <li>AI 工具</li>
+                    <li>学习资源</li>
+                    <li>社交媒体</li>
+                    <!-- 可添加更多测试项 -->
+                    <li>开发资源</li>
+                    <li>MC资源</li>
+                    <li>工业控制</li>
+                    <li>实用工具</li>
+                    <li>软件资源</li>
+                </ul>
+            </nav>
+        </div>
+    
+
+           
+           <div class="content-area">
+
+                <!-- 其他分类通过JavaScript动态生成 -->
+
+            <script>
+                
+                        // 新增搜索引擎配置
+                        const searchEngines = {
+                            "必应": "https://cn.bing.com/search?q={search}",
+                            "百度": "https://www.baidu.com/s?wd={search}",
+                            "杨得": "https://wap.yandex.com/search/?text={search}&lr=10591"
+                        };
+
+                        // 搜索功能实现
+                        function handleSearch() {
+                        const input = document.querySelector('.search-box input');
+                        const keyword = encodeURIComponent(input.value.trim());
+                        const engine = document.querySelector('.search-engine-tabs .active').textContent;
+                        
+                        if (keyword) {
+                            const searchUrl = searchEngines[engine].replace('{search}', keyword);
+                            window.open(searchUrl, '_blank');
+                        }
+                         }
+
+                        // 绑定搜索事件（在DOM加载完成后添加）
+                        document.addEventListener('DOMContentLoaded', () => {
+                            // 搜索按钮点击事件
+                            document.querySelector('.search-button').addEventListener('click', handleSearch);
+                            
+                            // 回车键事件
+                            document.querySelector('.search-box input').addEventListener('keypress', (e) => {
+                                if (e.key === 'Enter') handleSearch();
+                            });
+                        });
+
+                        // 滚动到顶部功能
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const scrollBtn = document.getElementById('scrollTopBtn');
+                            
+                            // 显示/隐藏按钮
+                            window.addEventListener('scroll', () => {
+                                if (window.scrollY > 200) {
+                                    scrollBtn.classList.add('show');
+                                } else {
+                                    scrollBtn.classList.remove('show');
+                                }
+                            });
+
+                            // 点击事件
+                            scrollBtn.addEventListener('click', () => {
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                            });
+                        });
+
+                        // 保留原有分类相关代码...
+ 
+                // 分类数据（添加标题字段）
+                const categories = {
+                    "视频资源": {
+                        title: "视频",
+                        items: [
+                            {
+                                name: "哔哩哔哩",
+                                url: "https://www.bilibili.com",
+                                icon: "https://www.bilibili.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "抖音",
+                                url: "https://www.douyin.com",
+                                icon: "https://www.douyin.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "好好看",
+                                url: "https://dl.hhkan0.com/",
+                                icon: "https://vf.wbadl.cn/vod_dl_static_hkan/images/favicon.ico"
+                            }
+                            ,
+                            ,
+                            {
+                                name: "低端影视",
+                                url: "https://ddys.pro/",
+                                icon: "https://ddys.pro/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "厂长资源",
+                                url: "https://www.czzy.site/",
+                                icon: "https://www.czzy77.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "橘子动漫",
+                                url: "https://www.jzacg.com/",
+                                icon: "https://r2img.nanoacg.com/favicon.png"
+                            }
+                        ]
+                    },
+                    "AI 工具": {
+                        title: "AI",
+                        items: [
+                            {
+                                name: "deepseek",
+                                url: "https://www.deepseek.com/",
+                                icon: "https://www.deepseek.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "通义千问",
+                                url: "https://tongyi.aliyun.com/",
+                                icon: "https://img.alicdn.com/imgextra/i4/O1CN01EfJVFQ1uZPd7W4W6i_!!6000000006051-2-tps-112-112.png"
+                            }
+                            ,
+                            {
+                                name: "Kimi",
+                                url: "https://kimi.moonshot.cn/",
+                                icon: "https://statics.moonshot.cn/kimi-chat/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "纳米AI搜索",
+                                url: "https://so.n.cn/",
+                                icon: "https://so.n.cn/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "硅基流动",
+                                url: "https://cloud.siliconflow.cn/models",
+                                icon: "https://cloud.siliconflow.cn/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "问小白",
+                                url: "https://www.wenxiaobai.com/chat/",
+                                icon:"https://www.wenxiaobai.com/new_favicon.ico"
+                            }
+
+
+                        ]
+                    },
+                    "学习资源": {
+                        title: "学习",
+                        items: [
+                            {
+                                name: "Github",
+                                url: "https://github.com/",
+                                icon: "https://github.com/favicon.ico",
+                                text:"知名代码开源平台"
+                            }
+                            ,
+                            {
+                                name: "学术导航",
+                                url: "https://paper2x.noedgeai.com/",
+                                icon: "https://paper2x.noedgeai.com/svg/paper2x.svg",
+                                text:"学术文献网站大全"
+                            }
+                             
+                            ,
+                            {
+                                name: "Docx2",
+                                url: "https://doc2x.noedgeai.com/",
+                                icon:"https://doc2x.noedgeai.com/assets/doc2x-624ebfe5.svg",
+                                text:"文献AI处理"
+                            }
+                             
+                        ]
+                    },
+                    "社交媒体": {
+                        title: "社交媒体",
+                        items: [
+                            {
+                                name: "微博",
+                                url: "https://weibo.com/",
+                                icon: "https://weibo.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "知乎",
+                                url: "https://www.zhihu.com/",
+                                icon: "https://www.zhihu.com/favicon.ico"
+                            }
+                             
+                            ,
+                            {
+                                name: "贴吧",
+                                url: "https://tieba.baidu.com/",
+                                icon: "https://tieba.baidu.com/favicon.ico"
+                            }
+                
+                        ]
+                    },  
+
+                    "开发资源": {
+                        title: "Java",
+                        items: [
+                            {
+                                name: "Java官网",
+                                url: "https://www.oracle.com/cn/java/technologies/downloads/",
+                                icon: "https://www.oracle.com/favicon.ico"
+                            }
+                            ,
+                            {
+                                name: "jdk下载",
+                                url: "https://www.azul.com/downloads/?package=jdk#zulu",
+                                icon: "https://www.azul.com/wp-content/themes/azul/assets/img/azul-favicon-block.png",
+                            }
+                             
+                             
+                
+                        ]
+                    },  
+
+                    
+                    "MC资源": {
+                        title: "Minecraft",
+                        items: [
+                            {
+                                name: "PCL2",
+                                url: "https://ltcat.lanzouv.com/b0aj6gsid",
+                                icon: "icons/Plain Craft Launcher 2.ico",
+                                text:"PCL2下载，提取码pcl2"
+                            }
+                            ,
+                            {
+                                name: "MC百科",
+                                url: "https://www.mcmod.cn/",
+                                icon: "https://www.mcmod.cn/favicon.ico",
+                                text:"国内最大的MOD百科"
+                            }
+                             
+                            ,
+                            {
+                                name: "中文Wiki",
+                                url: "https://minecraft.fandom.com/zh/wiki/Minecraft_Wiki",
+                                icon: "icons/Wiki.ico",
+                                text:"MC原版知识库"
+                            }
+                            ,
+                            {
+                                name: "PMC",
+                                url: "https://www.planetminecraft.com/data-packs/",
+                                icon: "icons/mc数据包.png",
+                                text:"MC数据包下载"
+                            }
+                            ,
+                            {
+                                name: "NameMC",
+                                url: "https://zh-cn.namemc.com/minecraft-skins",
+                                icon: "https://s.namemc.com/favicon.ico",
+                                text:"MC皮肤下载"
+                            }
+                            ,
+                            {
+                                name: "chunkbase",
+                                url: "https://www.chunkbase.com/apps/",
+                                icon: "https://www.chunkbase.com/favicon.ico",
+                                 text:"MC种子查询"
+                            }
+                
+                        ]
+                    },  
+
+                    "工业控制": {
+                        title: "工控网",
+                        items: [
+                            {
+                                name: "电气天下",
+                                url: "https://www.dq123.com/",
+                                icon: "https://www.dq123.com/favicon.ico",
+                                text:"电气数据分享社区"
+                            }
+                            ,
+                            {
+                                name: "工控网",
+                                url: "https://www.gongkong.com/",
+                                icon: "https://www.gongkong.com/favicon.ico",
+                                text:"工业互联与智能制造平台"
+                            }
+                             
+                            ,
+                            {
+                                name: "工控猫",
+                                url: "https://www.gongkongmall.com/",
+                                icon: "https://www.gongkongmall.com/upload/logo/favorites_icon.png?v=1742168571",
+                                text:"工控电商"
+                            }
+                            ,
+                            {
+                                name: "半导小新",
+                                url: "https://www.semiee.com/index",
+                                icon: "https://www.semiee.com/static/favicon.ico",
+                                text:"芯片查询工具"
+                            }
+                            ,
+                            {
+                                name: "芯查查",
+                                url: "https://www.xcc.com/",
+                                icon: "https://www.xcc.com/favicon.ico",
+                                text:"电子信息产业数据引擎"
+                            }
+                            ,
+                            {
+                                name: "聚龙芯城",
+                                url: "https://www.golon.net/",
+                                icon: "https://ts2.tc.mm.bing.net/th?id=ODLS.ee5a00dd-7d65-4609-8b2c-ed847974c00f&w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2",
+                                text:"电子电路硬件服务商"
+                            }
+                             
+                        ]
+                    },  
+
+                    "实用工具": {
+                        title: "工具",
+                        items: [
+                        {
+                            name: "Bandzip",
+                            url: "https://dl.bandisoft.com/bandizip.old/BANDIZIP6-SETUP.EXE?2",
+                            icon: "icons/Bandizip.ico",
+                            text: "强大且简洁的压缩工具"
+                        },
+                        {
+                            name: "Geek Uninstaller",
+                            url: "https://geekuninstaller.com/",
+                            icon: "https://geekuninstaller.com/favicon.ico",
+                            text: "强力的卸载工具"
+                        },
+                        {
+                            name: "Greasy Fork",
+                            url: "https://greasyfork.org/",
+                            icon: "icons/GreasyFork.png",
+                            text: "油猴脚本官网，需要梯子" 
+                        },
+                        {
+                            name: "Greasy Fork",
+                            url: "https://greasyfork.zh-cn.eu.org",
+                            icon: "https://s21.ax1x.com/2025/02/21/pEQznoQ.png",
+                            text: "油猴脚本镜像，没有梯子用" 
+                        },
+                        {
+                            name: "白描",
+                            url: "https://web.baimiaoapp.com/",
+                            icon: "https://xlimage.uzero.cn/shinescan/res/favicon.ico",
+                            text: "图片文字提取"
+                        },
+                        {
+                            name: "Netlify",
+                            url: "https://www.netlify.com/",
+                            icon: "https://www.netlify.com/favicon/favicon.ico",
+                            text: "代码托管平台"
+                        },
+                        {
+                            name: "CSS压缩工具",
+                            url: "https://tool.lu/css/",
+                            icon: "https://tool.lu/favicon.ico",
+                            text: "CSS优化和压缩"
+                        },
+                        {
+                            name: "轻略",
+                            url: "https://gonglue.qinggl.com/app/img/icon.jsp",
+                            icon: "https://gonglue.qinggl.com/favicon.ico",
+                            text: "网站图标抓取"
+                        },
+                        {
+                            name: "Watt Toolkit",
+                            url: "https://steampp.net/",
+                            icon: "https://steampp.net/favicon.ico",
+                            text: "免费加速器"
+                        },
+                         {
+                            name: "iFixit",
+                            url: "https://zh.ifixit.com/",
+                            icon: "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-57x57.png",
+                            text: "免费修理手册"
+                        },
+                         {
+                            name: "简单设计",
+                            url: "https://jiandan.link/common-tools",
+                            icon: "https://d.jiandan.link/office_logo_lv.svg",
+                            text: "图片在线编辑格式转换"
+                        },
+                         {
+                            name: "iconfinder",
+                            url: "https://www.iconfinder.com/",
+                            icon: "https://www.iconfinder.com/static/img/favicons/apple-touch-icon.png?3186e39e61",
+                            text: "矢量图素材"
+                        },
+                         {
+                            name: "Uiverse",
+                            url: "https://uiverse.io/buttons",
+                            icon: "https://uiverse.io/favicon.ico",
+                            text: "UI素材网"
+                        },
+
+                                        
+                        ]
+                        },  
+
+                        "软件资源": {
+                        title: "软件资源站",
+                        items: [
+                        {
+                            name: "果核剥壳",
+                            url: "https://www.ghxi.com/",
+                            icon: "https://www.ghxi.com/favicon.ico",
+                            text: "纯净软件资源站"
+                        },
+                        {
+                            name: "爱纯净",
+                            url: "https://www.aichunjing.com/",
+                            icon: "https://www.aichunjing.com/favicon.ico",
+                            text: "装机必备资源站"
+                        },
+                         
+                                        
+                         ]
+                        },  
+
+
+                };
+
+                                       
+                        function generateCard(item) {
+                            const card = document.createElement('a');
+                            card.className = 'website-card';
+                            card.href = item.url;
+                            card.target = '_blank';
+                            card.innerHTML = `
+                                <div class="card-header">
+                                    ${item.icon ? 
+                                        `<img src="${item.icon}" 
+                                            class="favicon" 
+                                            alt="${item.name}图标"
+                                            onerror="this.replaceWith(this.parentNode.querySelector('.link-icon'))">` : 
+                                        `<i class="fas fa-link link-icon"></i>`}
+                                    <h3>${item.name}</h3>
+                                </div>
+                                <!-- 新增文本显示逻辑 -->
+                                <div class="website-link">
+                                    ${item.text ? item.text : item.url} <!-- 关键修改处 -->
+                                </div>
+                            `;
+                            const iconPath = item.icon.startsWith('icons/') ? 
+                            item.icon : 
+                            `icons/${item.category}/${item.name.toLowerCase()}.png`;
+                            return `
+                                <div class="card-header">
+                                    ${item.icon ? 
+                                        `<img src="${iconPath}" 
+                                            class="favicon" 
+                                            alt="${item.name}图标"
+                                            onerror="this.src='icons/default.png'">` : 
+                                        `<i class="fas fa-link link-icon"></i>`}
+                                    <h3>${item.name}</h3>
+                                </div>
+                            `;
+                            return card;
+                        }
+                        // 初始化函数（单一版本）
+                        function initCategories() {
+                            const container = document.querySelector('.content-area');
+                            container.innerHTML = '';
+
+                            Object.entries(categories).forEach(([category, data]) => {
+                                // 创建分类容器
+                                const categoryDiv = document.createElement('div');
+                                categoryDiv.className = 'category-content';
+                                categoryDiv.dataset.category = category;
+
+                                // 添加分类标题
+                                const title = document.createElement('h2');
+                                title.textContent = data.title;
+                                
+                                // 创建卡片网格
+                                const cardGrid = document.createElement('div');
+                                cardGrid.className = 'card-grid';
+                                
+                                // 填充卡片
+                                data.items.forEach(item => {
+                                    cardGrid.appendChild(generateCard(item));
+                                });
+
+                                // 组合元素
+                                categoryDiv.append(title, cardGrid);
+                                container.appendChild(categoryDiv);
+                            });
+
+                            // 初始化第一个分类可见
+                            document.querySelector('.category-content').classList.add('active');
+                        }
+
+                        // 分类导航交互
+                        function bindCategoryEvents() {
+                            document.querySelectorAll('.category-nav li').forEach(li => {
+                                li.addEventListener('click', () => {
+                                    // 移除所有active状态
+                                    document.querySelectorAll('.category-nav li, .category-content').forEach(el => {
+                                        el.classList.remove('active');
+                                    });
+                                    
+                                    // 设置当前active状态
+                                    li.classList.add('active');
+                                    const targetCategory = li.textContent.trim();
+                                    document.querySelector(`[data-category="${targetCategory}"]`).classList.add('active');
+                                });
+                            });
+                        }
+
+                        // 页面初始化
+                        document.addEventListener('DOMContentLoaded', () => {
+                            initCategories();
+                            bindCategoryEvents();
+                        });
+
+                   // 生成卡片时使用<a>包裹整个卡片
+                        function generateCard(item) {
+                            const card = document.createElement('a');
+                            card.className = 'website-card';
+                            card.href = item.url;
+                            card.target = '_blank';
+                            card.innerHTML = `
+                                <div class="card-header">
+                                    ${item.icon ? 
+                                        `<img src="${item.icon}" class="favicon" alt="${item.name}图标">` : 
+                                        `<i class="fas fa-link link-icon"></i>`}
+                                    <h3>${item.name}</h3>
+                                </div>
+                               <div class="website-link">${item.text || item.url}</div>
+                            `;
+                            return card;
+                        }
+
+
+                       
+
+                    // 搜索引擎切换
+                    document.querySelectorAll('.search-engine-tabs button').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelector('.search-engine-tabs .active').classList.remove('active');
+                            btn.classList.add('active');
+                        });
+                    });
+
+                    // 在script部分添加滚动功能
+                    // 分类导航点击事件
+                    document.querySelectorAll('.category-nav li').forEach(li => {
+                        li.addEventListener('click', () => {
+                            // 移除所有active状态
+                            document.querySelectorAll('.category-nav li').forEach(el => {
+                                el.classList.remove('active');
+                            });
+                            li.classList.add('active');
+                            
+                            // 获取目标分类
+                            const targetCategory = li.textContent.trim();
+                            const targetSection = document.querySelector(`[data-category="${targetCategory}"]`);
+                            
+                             // 添加延迟确保DOM更新
+                            setTimeout(() => {
+                                if(targetSection) {
+                                    // 优化后的滚动定位
+                                    targetSection.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'start',
+                                        inline: 'nearest'
+                                    });
+
+                                    // 优化导航栏滚动定位
+                                    const nav = li.closest('ul');
+                                    const scrollLeft = li.offsetLeft - (nav.offsetWidth / 2) + (li.offsetWidth / 2);
+                                    
+                                    nav.parentElement.scrollTo({
+                                        left: scrollLeft,
+                                        behavior: 'smooth'
+                                    });
+
+                                    // 新增滚动修正代码
+                                    setTimeout(() => {
+                                        const currentPosition = window.scrollY;
+                                        const elementPosition = targetSection.offsetTop - 60;
+                                        if (Math.abs(currentPosition - elementPosition) > 10) {
+                                            window.scrollTo({
+                                                top: elementPosition,
+                                                behavior: 'smooth'
+                                            });
+                                        }
+                                    }, 300);
+                                }
+                            }, 50);
+                        });
+                    });
+                    
+
+                    document.querySelector('.translate-button').addEventListener('click', async function(e) {
+                            btn.addEventListener('click', async function(e) {
+                                e.preventDefault();
+                                const input = document.querySelector('.search-box input');
+                                const text = input.value.trim();
+                                
+                                if (!text) {
+                                alert('请输入要翻译的内容');
+                                return;
+                                }
+
+                                // 加载状态
+                                const originalContent = this.innerHTML;
+                                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                                try {
+                                        const response = await fetch('/.netlify/functions/translate', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ text })
+                                        });
+                                        
+                                        const data = await response.json();
+                                        input.value = data.trans_result[0].dst;
+                                    }  catch (error) {
+                                console.error('翻译失败:', error);
+                                alert('翻译服务暂时不可用');
+                                } finally {
+                                this.innerHTML = originalContent;
+                                }
+                            });
+                            });
+            </script>
+</body>
+</html>
