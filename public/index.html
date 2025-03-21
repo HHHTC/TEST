@@ -208,6 +208,9 @@
                                 const tempText = sourceText.value;
                                 sourceText.value = targetText.value;
                                 targetText.value = tempText;
+
+                                // 更新复制按钮显示状态
+                                copyTextBtn.style.display = targetText.value ? 'block' : 'none';
                             });
 
                             // 监听源文本变化,自动翻译
@@ -222,6 +225,10 @@
                             sourceText.addEventListener('input', function() {
                                 clearTimeout(translateTimeout);
                                 clearTextBtn.style.display = this.value ? 'block' : 'none';
+                                // 清空源文本时也隐藏复制按钮
+                                if (!this.value) {
+                                    copyTextBtn.style.display = 'none';
+                                }
                             });
 
                             // 清空按钮点击事件
@@ -244,8 +251,6 @@
                                     console.error('复制失败:', err);
                                 }
                             });
-
-                             
 
                             // 添加翻译按钮点击事件
                             translateStartBtn.addEventListener('click', async function() {
@@ -283,9 +288,13 @@
                                     }
                                     
                                     targetTextArea.value = data.translatedText;
+                                    // 显示复制按钮
+                                    copyTextBtn.style.display = 'block';
                                 } catch (error) {
                                     console.error('翻译错误:', error);
                                     targetTextArea.value = `翻译失败: ${error.message}`;
+                                    // 错误时也显示复制按钮
+                                    copyTextBtn.style.display = 'block';
                                 } finally {
                                     // 移除加载状态
                                     this.classList.remove('loading');
