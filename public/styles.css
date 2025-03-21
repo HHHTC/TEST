@@ -1169,3 +1169,54 @@ search-box input:focus::after {
 .translate-start-btn.loading .fa-spinner {
     display: inline-block !important;
 }
+
+.source-text-container,
+.target-text-container {
+    position: relative;
+    width: 100%;
+}
+
+.clear-text-btn,
+.copy-text-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.clear-text-btn:hover,
+.copy-text-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.clear-text-btn i,
+.copy-text-btn i {
+    font-size: 16px;
+}
+
+/* 调整文本框内边距，为按钮留出空间 */
+.source-text,
+.target-text {
+    padding-right: 40px !important;
+}
+
+/* 复制成功时的动画效果 */
+.copy-text-btn.copied {
+    color: #4CAF50;
+    animation: copySuccess 0.5s ease;
+}
+
+@keyframes copySuccess {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}
