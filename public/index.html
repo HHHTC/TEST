@@ -215,8 +215,6 @@
 
                                 // 显示加载状态
                                 this.classList.add('loading');
-                                const targetTextArea = document.querySelector('.target-text');
-                                targetTextArea.value = '翻译中...';
                                 
                                 try {
                                     const sourceLang = document.querySelector('.source-lang').value;
@@ -235,19 +233,14 @@
                                     });
                                     
                                     if (!response.ok) {
-                                        const errorData = await response.json();
-                                        throw new Error(errorData.error || '翻译请求失败');
+                                        throw new Error('翻译请求失败');
                                     }
                                     
                                     const data = await response.json();
-                                    if (data.trans_result && data.trans_result.length > 0) {
-                                        targetTextArea.value = data.trans_result[0].dst;
-                                    } else {
-                                        throw new Error(data.error_msg || '翻译结果为空');
-                                    }
+                                    document.querySelector('.target-text').value = data.translatedText;
                                 } catch (error) {
                                     console.error('翻译错误:', error);
-                                    targetTextArea.value = '翻译失败: ' + error.message;
+                                    document.querySelector('.target-text').value = '翻译失败,请稍后重试';
                                 } finally {
                                     // 移除加载状态
                                     this.classList.remove('loading');
