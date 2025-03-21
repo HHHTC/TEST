@@ -1,18 +1,16 @@
 {
-  "name": "htc-nav",
+  "name": "htc-navigation",
   "version": "1.0.0",
+  "description": "HTC导航站",
   "scripts": {
-    "build": "echo 'No build needed'",
-    "start": "echo 'Static site'"
+    "dev": "netlify dev",
+    "build": "netlify build"
   },
   "dependencies": {
-    "crypto-js": "^4.1.1",
-    "node-fetch": "^2.6.7",
-    "express": "^4.18.2",
     "axios": "^1.6.2",
-    "cors": "^2.8.5"
+    "md5": "^2.3.0"
   },
-  "engines": {
-    "node": ">=16.0.0"
+  "devDependencies": {
+    "netlify-cli": "^17.10.1"
   }
 }
