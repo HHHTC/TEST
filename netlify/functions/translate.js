@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const axios = require('axios');
+const md5 = require('md5');
 
 // 百度翻译 API 配置
 const BAIDU_API_URL = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
@@ -24,36 +25,51 @@ exports.handler = async function(event, context) {
             };
         }
 
-        // 生成随机数
-        const salt = Date.now().toString();
+        // 检查环境变量
         const appid = process.env.BAIDU_APP_ID;
         const key = process.env.BAIDU_SECRET_KEY;
-
-        // 生成签名字符串：appid + q + salt + 密钥
-        const signStr = appid + q + salt + key;
         
-        // 计算MD5签名
-        const sign = crypto
-            .createHash('md5')
-            .update(signStr)
-            .digest('hex');
+        if (!appid || !key) {
+            console.error('环境变量未设置：BAIDU_APP_ID 或 BAIDU_SECRET_KEY');
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: '翻译服务配置错误' })
+            };
+        }
+
+        // 生成随机数
+        const salt = Date.now().toString();
+
+        // 生成签名
+        const sign = md5(appid + q + salt + key);
 
         // 构建请求参数
-        const params = new URLSearchParams({
+        const params = {
             q,
             from,
             to,
             appid,
             salt,
             sign
-        });
+        };
+
+        console.log('请求参数:', params); // 调试日志
 
         // 发送翻译请求
-        const response = await axios.get(`${BAIDU_API_URL}?${params.toString()}`);
+        const response = await axios({
+            method: 'get',
+            url: BAIDU_API_URL,
+            params: params,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
 
-        // 处理翻译结果
+        console.log('百度API响应:', response.data); // 调试日志
+
+        // 检查API错误
         if (response.data.error_code) {
-            throw new Error(`翻译错误：${response.data.error_msg}`);
+            throw new Error(`百度API错误: ${response.data.error_code} - ${response.data.error_msg}`);
         }
 
         return {
@@ -65,12 +81,13 @@ exports.handler = async function(event, context) {
         };
 
     } catch (error) {
-        console.error('翻译错误:', error);
+        console.error('翻译服务错误:', error);
         return {
             statusCode: 500,
             body: JSON.stringify({ 
-                error: '翻译失败',
-                message: error.message 
+                error: '翻译请求失败',
+                message: error.message,
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
             })
         };
     }
