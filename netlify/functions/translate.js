@@ -3,8 +3,8 @@ const crypto = require('crypto-js');
 const qs = require('querystring');
 
 // 百度翻译API配置
-const BAIDU_APP_ID = process.env.BAIDU_APP_ID;
-const BAIDU_SECRET_KEY = process.env.BAIDU_SECRET_KEY;
+const BAIDU_APP_ID = process.env.BAIDU_APPID;
+const BAIDU_SECRET_KEY = process.env.BAIDU_KEY;
 const BAIDU_API_URL = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
 
 exports.handler = async function(event, context) {
@@ -15,6 +15,12 @@ exports.handler = async function(event, context) {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json'
   };
+
+  // 调试日志：检查环境变量
+  console.log('Environment check:', {
+    hasAppId: !!BAIDU_APP_ID,
+    hasSecretKey: !!BAIDU_SECRET_KEY
+  });
 
   // 处理OPTIONS请求
   if (event.httpMethod === 'OPTIONS') {
@@ -35,6 +41,9 @@ exports.handler = async function(event, context) {
   }
 
   try {
+    // 调试日志：输出请求体
+    console.log('Request body:', event.body);
+
     const { text, from, to } = JSON.parse(event.body);
 
     // 验证必要参数
@@ -42,7 +51,17 @@ exports.handler = async function(event, context) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: '缺少必要参数' })
+        body: JSON.stringify({ error: '缺少必要参数', params: { text: !!text, to: !!to } })
+      };
+    }
+
+    // 验证API配置
+    if (!BAIDU_APP_ID || !BAIDU_SECRET_KEY) {
+      console.error('Missing API configuration');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'API配置错误' })
       };
     }
 
@@ -50,14 +69,12 @@ exports.handler = async function(event, context) {
     const salt = Math.round(Date.now() / 1000).toString();
     
     // 按照文档要求生成签名：appid+q+salt+密钥
-    // 注意：这里不对q做URL编码
     const signStr = `${BAIDU_APP_ID}${text}${salt}${BAIDU_SECRET_KEY}`;
     const sign = crypto.MD5(signStr).toString().toLowerCase();
 
     // 准备请求参数
-    // 注意：这里对q做URL编码
     const params = {
-      q: encodeURIComponent(text),
+      q: text, // 不在这里进行URL编码
       from: from || 'auto',
       to: to,
       appid: BAIDU_APP_ID,
@@ -65,10 +82,11 @@ exports.handler = async function(event, context) {
       sign: sign
     };
 
+    // 调试日志：输出请求参数
     console.log('Request params:', {
       ...params,
-      q: text, // 打印原始文本而不是编码后的文本
-      appid: '***', // 隐藏敏感信息
+      q: text,
+      appid: '***',
       sign: '***'
     });
 
@@ -79,9 +97,10 @@ exports.handler = async function(event, context) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      data: qs.stringify(params)
+      data: qs.stringify(params) // querystring会自动处理URL编码
     });
 
+    // 调试日志：输出API响应
     console.log('API Response:', response.data);
 
     // 处理翻译结果
@@ -96,19 +115,31 @@ exports.handler = async function(event, context) {
         })
       };
     } else if (response.data.error_code) {
-      throw new Error(`API错误: ${response.data.error_code} - ${response.data.error_msg}`);
+      // 处理百度API的错误响应
+      const errorMessage = `百度翻译API错误: ${response.data.error_code} - ${response.data.error_msg}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     } else {
       throw new Error('翻译失败：未收到有效的翻译结果');
     }
 
   } catch (error) {
-    console.error('Translation error:', error);
+    // 详细的错误日志
+    console.error('Translation error:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
+
+    // 返回更详细的错误信息
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: '翻译服务出错',
-        details: error.message
+        details: error.message,
+        errorCode: error.response?.data?.error_code,
+        errorMsg: error.response?.data?.error_msg
       })
     };
   }
