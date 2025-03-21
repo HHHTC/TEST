@@ -1,6 +1,12 @@
 [build]
+  command = "npm install"
   functions = "netlify/functions"
   publish = "public"
 
 [functions]
-  node_bundler = "esbuild" 
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
