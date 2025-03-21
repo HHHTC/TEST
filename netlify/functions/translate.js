@@ -47,21 +47,30 @@ exports.handler = async function(event, context) {
     }
 
     // 生成随机数
-    const salt = Date.now();
+    const salt = Math.round(Date.now() / 1000).toString();
     
     // 按照文档要求生成签名：appid+q+salt+密钥
-    const signStr = BAIDU_APP_ID + text + salt + BAIDU_SECRET_KEY;
+    // 注意：这里不对q做URL编码
+    const signStr = `${BAIDU_APP_ID}${text}${salt}${BAIDU_SECRET_KEY}`;
     const sign = crypto.MD5(signStr).toString().toLowerCase();
 
     // 准备请求参数
+    // 注意：这里对q做URL编码
     const params = {
-      q: text,
+      q: encodeURIComponent(text),
       from: from || 'auto',
       to: to,
       appid: BAIDU_APP_ID,
       salt: salt,
       sign: sign
     };
+
+    console.log('Request params:', {
+      ...params,
+      q: text, // 打印原始文本而不是编码后的文本
+      appid: '***', // 隐藏敏感信息
+      sign: '***'
+    });
 
     // 发送翻译请求
     const response = await axios({
@@ -73,17 +82,23 @@ exports.handler = async function(event, context) {
       data: qs.stringify(params)
     });
 
+    console.log('API Response:', response.data);
+
     // 处理翻译结果
     if (response.data && response.data.trans_result) {
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          translatedText: response.data.trans_result[0].dst
+          translatedText: response.data.trans_result[0].dst,
+          from: response.data.from,
+          to: response.data.to
         })
       };
+    } else if (response.data.error_code) {
+      throw new Error(`API错误: ${response.data.error_code} - ${response.data.error_msg}`);
     } else {
-      throw new Error('翻译失败');
+      throw new Error('翻译失败：未收到有效的翻译结果');
     }
 
   } catch (error) {
