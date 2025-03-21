@@ -893,38 +893,45 @@ search-box input:focus::after {
     cursor: pointer;
     display: flex;
     align-items: center;
-    height: 43px;
+    height: 100% !important; /* 设置高度为100%以匹配父容器 */
+    border-right: 1px solid #ddd;
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    height: 45px; /* 设置固定高度 */
+    background: #fff;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-box input {
+    height: 100% !important; /* 设置高度为100%以匹配父容器 */
+    border: none !important;
+    margin-right: 0;
+    flex: 1;
+    padding: 0 12px;
 }
 
 .search-button {
+    height: 45px !important; /* 设置与search-input-group相同的高度 */
     background: #3b95f6;
     color: white;
     padding: 0 20px;
     border: none;
     border-radius: 0 4px 4px 0;
     cursor: pointer;
-    order: 2; /* 保持搜索按钮在最后 */
+    order: 2;
     position: relative;
     z-index: 1;
 }
-
- 
-/* 调整输入框边框 */
-.search-box input {
-    border: none !important; /* 移除输入框自身边框 */
-    margin-right: 0;         /* 移除负边距 */
-    flex: 1;
-}
-
- 
- 
 
 /* 图标颜色变化 */
 .translate-button:hover img {
     filter: invert(39%) sepia(96%) saturate(7478%) hue-rotate(212deg); /* 蓝色滤镜 */
 }
-
- 
 
 /* 移动端适配 */
 @media (max-width: 768px) {
@@ -936,20 +943,6 @@ search-box input:focus::after {
         height: 20px;
     }
 }
-
- 
-/* 新增包裹输入框和翻译按钮的容器 */
-.search-input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
- 
-
-/* 翻译按钮样式调整 */
- 
 
 /* 聚焦效果调整 */
 .search-input-group:focus-within {
@@ -963,7 +956,6 @@ search-box input:focus::after {
     filter: invert(39%) sepia(96%) saturate(7478%) hue-rotate(212deg);
 }
 
- 
 /* 移动端适配 */
 @media (max-width: 768px) {
     .search-input-group {
@@ -974,7 +966,6 @@ search-box input:focus::after {
     }
 }
 
- 
 /* 修改搜索框容器结构 */
 .search-input-group {
     border-right: none !important; /* 移除右侧边框 */
