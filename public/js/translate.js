@@ -15,35 +15,38 @@ async function translateText() {
   targetTextArea.value = '翻译中...';
 
   try {
-    console.log('发送翻译请求:', {
-      text: sourceText,
+    // 准备请求数据
+    const requestData = {
+      q: sourceText,
       from: sourceLang,
       to: targetLang
-    });
+    };
+
+    console.log('发送翻译请求数据:', requestData);
 
     const response = await fetch('/.netlify/functions/translate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        q: sourceText,
-        from: sourceLang,
-        to: targetLang
-      })
+      body: JSON.stringify(requestData)
     });
 
-    // 检查HTTP状态
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP错误: ${response.status}`);
+    // 获取响应文本
+    const responseText = await response.text();
+    console.log('服务器响应:', responseText);
+
+    // 尝试解析JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`响应解析失败: ${responseText}`);
     }
 
-    const data = await response.json();
-    console.log('翻译响应:', data);
-
-    if (data.error) {
-      throw new Error(data.error);
+    // 检查错误
+    if (!response.ok) {
+      throw new Error(data.error || `请求失败: ${response.status}`);
     }
 
     // 显示翻译结果
@@ -54,8 +57,8 @@ async function translateText() {
     }
 
   } catch (error) {
-    console.error('翻译错误:', error);
-    targetTextArea.value = '翻译失败：' + (error.message || '未知错误');
+    console.error('翻译错误详情:', error);
+    targetTextArea.value = '翻译失败：' + error.message;
   } finally {
     // 移除加载状态
     translateBtn.classList.remove('loading');
