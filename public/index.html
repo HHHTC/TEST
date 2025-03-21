@@ -208,68 +208,39 @@
                                 clearTimeout(translateTimeout);
                             });
 
-                            // 修改翻译按钮点击事件处理
+                            // 添加翻译按钮点击事件
                             translateStartBtn.addEventListener('click', async function() {
                                 const text = sourceText.value.trim();
                                 if (!text) return;
 
                                 // 显示加载状态
                                 this.classList.add('loading');
-                                const targetTextArea = document.querySelector('.target-text');
-                                targetTextArea.value = '翻译中...';
                                 
                                 try {
                                     const sourceLang = document.querySelector('.source-lang').value;
                                     const targetLang = document.querySelector('.target-lang').value;
                                     
-                                    // 打印请求数据以便调试
-                                    console.log('发送翻译请求:', {
-                                        q: text,
-                                        from: sourceLang,
-                                        to: targetLang
-                                    });
-
                                     const response = await fetch('/.netlify/functions/translate', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json'
                                         },
                                         body: JSON.stringify({
-                                            q: text,
+                                            text: text,
                                             from: sourceLang,
                                             to: targetLang
                                         })
                                     });
-
-                                    // 获取响应文本
-                                    const responseText = await response.text();
-                                    console.log('服务器响应:', responseText);
-
-                                    // 尝试解析JSON
-                                    let data;
-                                    try {
-                                        data = JSON.parse(responseText);
-                                    } catch (e) {
-                                        throw new Error(`响应解析失败: ${responseText}`);
-                                    }
-
-                                    // 检查错误
+                                    
                                     if (!response.ok) {
-                                        throw new Error(data.error || `请求失败: ${response.status}`);
+                                        throw new Error('翻译请求失败');
                                     }
-
-                                    // 检查翻译结果
-                                    if (data.trans_result && data.trans_result.length > 0) {
-                                        targetTextArea.value = data.trans_result[0].dst;
-                                    } else if (data.error_code) {
-                                        throw new Error(`百度API错误: ${data.error_code} - ${data.error_msg}`);
-                                    } else {
-                                        throw new Error('翻译结果为空');
-                                    }
-
+                                    
+                                    const data = await response.json();
+                                    document.querySelector('.target-text').value = data.translatedText;
                                 } catch (error) {
                                     console.error('翻译错误:', error);
-                                    targetTextArea.value = '翻译失败: ' + error.message;
+                                    document.querySelector('.target-text').value = '翻译失败,请稍后重试';
                                 } finally {
                                     // 移除加载状态
                                     this.classList.remove('loading');
@@ -466,45 +437,34 @@
                         // 初始化函数（单一版本）
                         function initCategories() {
                             const container = document.querySelector('.content-area');
-                            if (!container) {
-                                console.error('找不到content-area容器');
-                                return;
-                            }
-                            
                             container.innerHTML = '';
 
                             Object.entries(categories).forEach(([category, data]) => {
                                 // 创建分类容器
                                 const categoryDiv = document.createElement('div');
                                 categoryDiv.className = 'category-content';
-                                categoryDiv.dataset.category = category; // 确保正确设置data-category
-                                
+                                categoryDiv.dataset.category = category;
+
                                 // 添加分类标题
                                 const title = document.createElement('h2');
-                                title.textContent = data.title || category; // 使用title或fallback到category名
+                                title.textContent = data.title;
                                 
                                 // 创建卡片网格
                                 const cardGrid = document.createElement('div');
                                 cardGrid.className = 'card-grid';
                                 
                                 // 填充卡片
-                                if (Array.isArray(data.items)) {
-                                    data.items.forEach(item => {
-                                        cardGrid.appendChild(generateCard(item));
-                                    });
-                                }
+                                data.items.forEach(item => {
+                                    cardGrid.appendChild(generateCard(item));
+                                });
 
                                 // 组合元素
-                                categoryDiv.appendChild(title);
-                                categoryDiv.appendChild(cardGrid);
+                                categoryDiv.append(title, cardGrid);
                                 container.appendChild(categoryDiv);
                             });
 
                             // 初始化第一个分类可见
-                            const firstCategory = container.querySelector('.category-content');
-                            if (firstCategory) {
-                                firstCategory.classList.add('active');
-                            }
+                            document.querySelector('.category-content').classList.add('active');
                         }
 
                         // 分类导航交互
@@ -512,42 +472,21 @@
                             document.querySelectorAll('.category-nav li').forEach(li => {
                                 li.addEventListener('click', () => {
                                     // 移除所有active状态
-                                    document.querySelectorAll('.category-nav li').forEach(el => {
+                                    document.querySelectorAll('.category-nav li, .category-content').forEach(el => {
                                         el.classList.remove('active');
                                     });
                                     
                                     // 设置当前active状态
                                     li.classList.add('active');
                                     const targetCategory = li.textContent.trim();
-                                    
-                                    // 添加错误处理
-                                    const targetContent = document.querySelector(`[data-category="${targetCategory}"]`);
-                                    if (targetContent) {
-                                        // 移除所有category-content的active类
-                                        document.querySelectorAll('.category-content').forEach(el => {
-                                            el.classList.remove('active');
-                                        });
-                                        // 添加active类到目标元素
-                                        targetContent.classList.add('active');
-                                    } else {
-                                        console.warn(`未找到分类内容: ${targetCategory}`);
-                                    }
+                                    document.querySelector(`[data-category="${targetCategory}"]`).classList.add('active');
                                 });
                             });
                         }
 
                         // 页面初始化
                         document.addEventListener('DOMContentLoaded', () => {
-                            // 初始化分类
                             initCategories();
-                            
-                            // 确保第一个分类可见
-                            const firstCategory = document.querySelector('.category-content');
-                            if (firstCategory) {
-                                firstCategory.classList.add('active');
-                            }
-                            
-                            // 绑定分类事件
                             bindCategoryEvents();
                         });
 
