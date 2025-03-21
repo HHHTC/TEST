@@ -1,5 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto-js');
+const qs = require('querystring');
 
 // 百度翻译API配置
 const BAIDU_APP_ID = process.env.BAIDU_APP_ID;
@@ -48,8 +49,9 @@ exports.handler = async function(event, context) {
     // 生成随机数
     const salt = Date.now();
     
-    // 生成签名
-    const sign = crypto.MD5(BAIDU_APP_ID + text + salt + BAIDU_SECRET_KEY).toString();
+    // 按照文档要求生成签名：appid+q+salt+密钥
+    const signStr = BAIDU_APP_ID + text + salt + BAIDU_SECRET_KEY;
+    const sign = crypto.MD5(signStr).toString().toLowerCase();
 
     // 准备请求参数
     const params = {
@@ -62,7 +64,14 @@ exports.handler = async function(event, context) {
     };
 
     // 发送翻译请求
-    const response = await axios.post(BAIDU_API_URL, null, { params });
+    const response = await axios({
+      method: 'post',
+      url: BAIDU_API_URL,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: qs.stringify(params)
+    });
 
     // 处理翻译结果
     if (response.data && response.data.trans_result) {
