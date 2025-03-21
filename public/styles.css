@@ -32,6 +32,7 @@ body {
 /* 搜索区域 */
 .search-section {
     margin-bottom: 30px;
+    position: relative;  /* 添加相对定位 */
 }
 
 .search-engine-tabs button {
@@ -892,7 +893,7 @@ search-box input:focus::after {
     cursor: pointer;
     display: flex;
     align-items: center;
-    height: 46px;
+    height: 43px;
 }
 
 .search-button {
@@ -939,12 +940,10 @@ search-box input:focus::after {
  
 /* 新增包裹输入框和翻译按钮的容器 */
 .search-input-group {
-    display: flex;
-    flex: 1;
     position: relative;
-    border: 2px solid transparent; /* 改为透明边框 */
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    flex: 1;
 }
 
  
@@ -1004,4 +1003,178 @@ search-box input:focus::after {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* 翻译卡片样式 */
+.translate-card {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 600px !important;
+    max-width: 90vw !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
+    z-index: 1001 !important;
+    box-sizing: border-box !important; /* 添加盒模型设置 */
+    overflow: hidden !important; /* 防止内容溢出 */
+}
+
+/* 翻译卡片头部 */
+.translate-header {
+    padding: 16px !important;
+    border-bottom: 1px solid #eee !important;
+    position: relative !important;
+    box-sizing: border-box !important; /* 添加盒模型设置 */
+    width: 100% !important;
+}
+
+/* 语言选择器 */
+.language-selector {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+}
+
+.language-selector select {
+    padding: 8px 12px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    min-width: 120px !important;
+    outline: none !important;
+    cursor: pointer !important;
+}
+
+.language-selector select:hover {
+    border-color: #3B82F6 !important;
+}
+
+/* 语言切换按钮 */
+.switch-lang {
+    cursor: pointer !important;
+    padding: 4px 8px !important;
+    color: #3B82F6 !important;
+    font-size: 18px !important;
+    transition: transform 0.2s !important;
+}
+
+.switch-lang:hover {
+    transform: scale(1.1) !important;
+}
+
+/* 翻译内容区域 */
+.translate-body {
+    padding: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    box-sizing: border-box !important; /* 添加盒模型设置 */
+    width: 100% !important;
+}
+
+.translate-body textarea {
+    width: 100% !important;
+    height: 120px !important;
+    padding: 12px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    resize: none !important;
+    outline: none !important;
+    box-sizing: border-box !important; /* 添加盒模型设置 */
+}
+
+.translate-body textarea:focus {
+    border-color: #3B82F6 !important;
+}
+
+.target-text {
+    background-color: #f8f9fa !important;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .translate-card {
+        width: 90vw !important;
+        max-height: 80vh !important;
+    }
+    
+    .translate-body textarea {
+        height: 100px !important;
+    }
+}
+
+/* 添加遮罩背景 */
+.translate-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1000 !important;
+    display: none !important;
+}
+
+.translate-overlay.show {
+    display: block !important;
+}
+
+/* 翻译开始按钮样式 */
+.translate-start-btn {
+    background: #3B82F6 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;  /* 修改margin，只保留上下间距 */
+    transition: all 0.3s ease !important;
+    width: 100% !important;    /* 设置宽度为100% */
+}
+
+.translate-start-btn:hover {
+    background: #2563eb !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+}
+
+.translate-start-btn i {
+    font-size: 16px !important;
+}
+
+/* 加载动画 */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.translate-start-btn .fa-spinner {
+    animation: spin 1s linear infinite !important;
+}
+
+.translate-start-btn.loading {
+    background: #94a3b8 !important;
+    pointer-events: none !important;
+}
+
+.translate-start-btn.loading span {
+    display: none !important;
+}
+
+.translate-start-btn.loading .fa-language {
+    display: none !important;
+}
+
+.translate-start-btn.loading .fa-spinner {
+    display: inline-block !important;
 }
