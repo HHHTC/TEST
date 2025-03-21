@@ -15,6 +15,12 @@ async function translateText() {
   targetTextArea.value = '翻译中...';
 
   try {
+    console.log('发送翻译请求:', {
+      text: sourceText,
+      from: sourceLang,
+      to: targetLang
+    });
+
     const response = await fetch('/.netlify/functions/translate', {
       method: 'POST',
       headers: {
@@ -27,7 +33,14 @@ async function translateText() {
       })
     });
 
+    // 检查HTTP状态
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP错误: ${response.status}`);
+    }
+
     const data = await response.json();
+    console.log('翻译响应:', data);
 
     if (data.error) {
       throw new Error(data.error);
@@ -42,9 +55,12 @@ async function translateText() {
 
   } catch (error) {
     console.error('翻译错误:', error);
-    targetTextArea.value = '翻译失败：' + error.message;
+    targetTextArea.value = '翻译失败：' + (error.message || '未知错误');
   } finally {
     // 移除加载状态
     translateBtn.classList.remove('loading');
   }
-} 
+}
+
+// 绑定翻译按钮事件
+document.querySelector('.translate-start-btn').addEventListener('click', translateText); 
