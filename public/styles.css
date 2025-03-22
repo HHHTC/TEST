@@ -48,21 +48,14 @@ body {
     width: 100%;
     position: relative;
     height: 45px;
-}
-
-/* 搜索输入组样式 */
-.search-input-group {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    height: 45px;
     background: #fff;
-    border-radius: 4px 0 0 4px;
     border: 2px solid #ddd;
-    border-right: none;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-.search-input-group input {
+/* 搜索输入框样式 */
+.search-box input {
     flex: 1;
     height: 100%;
     padding: 0 12px;
@@ -71,24 +64,25 @@ body {
     font-size: 16px;
 }
 
-/* 搜索按钮样式 */
-.search-button {
-    width: 60px;
-    height: 45px;
-    background: #3b95f6;
-    color: white;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-    border: 2px solid #3b95f6;
-    border-left: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* 搜索框获得焦点时的样式 */
+.search-box:focus-within {
+    border-color: #3b95f6;
+    box-shadow: 0 0 0 1px #3b95f6;
 }
 
-.search-button i {
-    font-size: 16px;
+.search-box:focus-within .search-button {
+    background: #3b95f6;
+}
+
+/* 翻译按钮样式 */
+.translate-button {
+    padding: 0 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    border-right: 1px solid #ddd;
 }
 
 /* 主要内容区域 */
@@ -879,7 +873,7 @@ search-box input:focus::after {
     border-right: 1px solid #ddd;
 }
 
-.search-input-group {
+.search-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
@@ -897,17 +891,29 @@ search-box input:focus::after {
     padding: 0 12px;
 }
 
+/* 搜索按钮样式 */
 .search-button {
-    height: 45px !important; /* 设置与search-input-group相同的高度 */
+    width: 60px;
+    height: 100%;
     background: #3b95f6;
     color: white;
-    padding: 0 20px;
     border: none;
-    border-radius: 0 4px 4px 0;
     cursor: pointer;
-    order: 2;
-    position: relative;
-    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    margin-left: -2px;
+}
+
+/* 搜索框获得焦点时的样式 */
+.search-box:focus-within {
+    border-color: #3b95f6;
+    box-shadow: 0 0 0 1px #3b95f6;
+}
+
+.search-box:focus-within .search-button {
+    background: #3b95f6;
 }
 
 /* 图标颜色变化 */
@@ -927,7 +933,7 @@ search-box input:focus::after {
 }
 
 /* 聚焦效果调整 */
-.search-input-group:focus-within {
+.search-input-wrapper:focus-within {
     border-color: #3B82F6;
     z-index: 1;
 }
@@ -939,7 +945,7 @@ search-box input:focus::after {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-    .search-input-group {
+    .search-input-wrapper {
         border-radius: 4px 0 0 4px;
     }
     .translate-button {
@@ -948,7 +954,7 @@ search-box input:focus::after {
 }
 
 /* 修改搜索框容器结构 */
-.search-input-group {
+.search-input-wrapper {
     border-right: none !important; /* 移除右侧边框 */
     margin-right: -2px; /* 补偿边框宽度 */
 }
@@ -1274,16 +1280,14 @@ search-box input:focus::after {
     display: none;
 }
 
-/* 确保搜索框容器有正确的定位 */
-.search-box {
+/* 确保搜索容器有正确的定位 */
+.search-container {
     position: relative;
-    display: flex;
-    margin-top: 10px;
-    z-index: 1000;
+    width: 100%;
 }
 
 /* 调整搜索输入组的样式 */
-.search-input-group {
+.search-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
@@ -1291,7 +1295,7 @@ search-box input:focus::after {
     height: 45px;
     background: #fff;
     border-radius: 4px 0 0 4px;
-    z-index: 1000;
+    z-index: 1001;
 }
 
 /* 确保下拉内容正确显示 */
