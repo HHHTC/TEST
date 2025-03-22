@@ -25,34 +25,69 @@
         </header>
        
         <!-- 搜索区域 -->
-    
         <div class="search-section compact-search">
             <div class="search-engine-tabs">
                 <button class="active">必应</button>
                 <button>百度</button>
                 <button>杨得</button>
             </div>
-            <div class="search-box">
-                <div class="search-input-group">
-                    <input type="text" placeholder="输入关键词搜索...">
-                    <a class="translate-button" href="#" title="翻译此内容">
-                        <img src="icons/translator.png" alt="翻译" style="height:60%">
-                    </a>
+            <div class="search-container">
+                <div class="search-box">
+                    <div class="search-input-group">
+                        <input type="text" placeholder="输入关键词搜索...">
+                        <a class="translate-button" href="#" title="翻译此内容">
+                            <img src="icons/translator.png" alt="翻译" style="height:60%">
+                        </a>
+                    </div>
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-                <button class="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
+                <!-- 将下拉菜单移到这里 -->
+                <div class="search-dropdown">
+                    <div class="dropdown-content">
+                        <div class="history-section">
+                            <div class="section-title">
+                                <i class="fas fa-history"></i>
+                                <span>搜索历史</span>
+                            </div>
+                            <ul class="history-list">
+                                <!-- 历史记录将通过JavaScript动态添加 -->
+                            </ul>
+                        </div>
+                        <div class="hot-section">
+                            <div class="section-title">
+                                <i class="fas fa-fire"></i>
+                                <span>热门搜索</span>
+                            </div>
+                            <ul class="hot-list">
+                                <li>ChatGPT</li>
+                                <li>人工智能</li>
+                                <li>编程教程</li>
+                                <li>视频剪辑</li>
+                                <li>在线翻译</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 添加遮罩层和移动翻译卡片到这里 -->
         <div class="translate-overlay"></div>
         <div class="translate-card" style="display:none;">
+            <div class="translate-title">
+                <span>翻译卡片</span>
+                <button class="close-translate-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <div class="translate-header">
                 <div class="language-selector">
                     <select class="source-lang">
                         <option value="auto">自动检测</option>
                         <option value="zh">中文</option>
+                        <option value="wyw">文言文</option>
                         <option value="en">英文</option>
                         <option value="jp">日语</option>
                         <option value="kor">韩语</option>
@@ -65,7 +100,7 @@
                     <span class="switch-lang">⇄</span>
                     <select class="target-lang">
                         <option value="zh">中文</option>
-                        <option value="en">英文</option>
+                        <option value="wyw">文言文</option>
                         <option value="jp">日语</option>
                         <option value="kor">韩语</option>
                         <option value="fra">法语</option>
@@ -152,12 +187,110 @@
                                 if (e.key === 'Enter') handleSearch();
                             });
 
+                            // 搜索下拉菜单相关
+                            const searchInput = document.querySelector('.search-box input');
+                            const searchDropdown = document.querySelector('.search-dropdown');
+                            const historyList = document.querySelector('.history-list');
+                            
+                            // 监听滚动事件，关闭下拉菜单
+                            window.addEventListener('scroll', () => {
+                                if (searchDropdown.style.display === 'block') {
+                                    searchDropdown.style.display = 'none';
+                                    // 取消搜索框的选中状态
+                                    searchInput.blur();
+                                }
+                            }, true); // 使用捕获阶段以确保优先处理
+
+                            // 从localStorage加载历史记录
+                            function loadHistory() {
+                                const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+                                historyList.innerHTML = history.map(item => `
+                                    <li>${item}</li>
+                                `).join('');
+                            }
+
+                            // 保存历史记录
+                            function saveHistory(keyword) {
+                                let history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+                                // 移除已存在的相同关键词
+                                history = history.filter(item => item !== keyword);
+                                // 添加到开头
+                                history.unshift(keyword);
+                                // 只保留前5条
+                                history = history.slice(0, 5);
+                                localStorage.setItem('searchHistory', JSON.stringify(history));
+                                loadHistory();
+                            }
+
+                            // 搜索框获得焦点时显示下拉菜单
+                            searchInput.addEventListener('focus', () => {
+                                searchDropdown.style.display = 'block';
+                                loadHistory();
+                                loadHotSearches(); // 添加加载热搜
+                            });
+
+                            // 加载热门搜索
+                            async function loadHotSearches() {
+                                const hotList = document.querySelector('.hot-list');
+                                try {
+                                    const response = await fetch('/.netlify/functions/search');
+                                    const data = await response.json();
+                                    
+                                    if (data.code === 200 && data.data) {
+                                        // 只显示前5条热搜
+                                        const hotSearches = data.data.slice(0, 5).map(item => `
+                                            <li>
+                                                <span class="hot-index">${item.index}</span>
+                                                <span class="hot-title">${item.title}</span>
+                                                <span class="hot-count">${item.hot}</span>
+                                            </li>
+                                        `).join('');
+                                        
+                                        hotList.innerHTML = hotSearches;
+                                    }
+                                } catch (error) {
+                                    console.error('获取热搜失败:', error);
+                                    hotList.innerHTML = '<li>获取热搜失败</li>';
+                                }
+                            }
+
+                            // 页面加载时获取一次热搜
+                            loadHotSearches();
+
+                            // 点击其他地方时隐藏下拉菜单
+                            document.addEventListener('click', (e) => {
+                                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                                    searchDropdown.style.display = 'none';
+                                }
+                            });
+
+                            // 点击历史记录或热门搜索项
+                            searchDropdown.addEventListener('click', (e) => {
+                                if (e.target.tagName === 'LI') {
+                                    searchInput.value = e.target.textContent;
+                                    searchDropdown.style.display = 'none';
+                                    handleSearch();
+                                }
+                            });
+
+                            // 修改搜索处理函数，添加历史记录
+                            const originalHandleSearch = handleSearch;
+                            handleSearch = function() {
+                                const keyword = searchInput.value.trim();
+                                if (keyword) {
+                                    saveHistory(keyword);
+                                    originalHandleSearch();
+                                }
+                            };
+
+                            // 初始加载历史记录
+                            loadHistory();
+
                             // 翻译按钮点击事件
                             const translateButton = document.querySelector('.translate-button');
                             const translateCard = document.querySelector('.translate-card');
                             const translateOverlay = document.querySelector('.translate-overlay');
                             const switchLangButton = document.querySelector('.switch-lang');
-                            const searchInput = document.querySelector('.search-box input');
                             
                             translateButton.addEventListener('click', function(e) {
                                 e.preventDefault();
@@ -191,6 +324,14 @@
                             // 阻止翻译卡片内部点击事件冒泡
                             translateCard.addEventListener('click', function(e) {
                                 e.stopPropagation();
+                            });
+
+                            // 添加关闭按钮点击事件
+                            const closeTranslateBtn = document.querySelector('.close-translate-btn');
+                            closeTranslateBtn.addEventListener('click', function() {
+                                translateCard.style.display = 'none';
+                                translateOverlay.classList.remove('show');
+                                document.body.style.overflow = '';
                             });
 
                             // 语言切换按钮功能
