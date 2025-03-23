@@ -57,10 +57,17 @@ body {
 /* 搜索输入框样式 */
 .search-box input {
     flex: 1;
+    width: 100%;
     height: 100%;
     padding: 0 12px;
     border: none;
     outline: none;
+    font-size: 16px;
+}
+
+/* 搜索框placeholder样式 */
+.search-box input::placeholder {
+    color: #999;
     font-size: 16px;
 }
 
@@ -77,7 +84,7 @@ body {
 
 /* 翻译按钮样式 */
 .translate-button {
-    padding: 0 16px;
+    padding: 0 24px; /* 增加横向宽度 */
     border: none;
     cursor: pointer;
     display: flex;
@@ -916,11 +923,19 @@ search-box input:focus::after {
 /* 移动端适配 */
 @media (max-width: 768px) {
     .translate-button {
-        padding: 0 8px;
+        padding: 0 16px; /* 移动端稍微收窄一点 */
+        width: auto; /* 自适应宽度 */
     }
-    .translate-button img {
-        width: 20px;
-        height: 20px;
+    
+    /* 移动端翻译卡片位置调整 */
+    .translate-card {
+        position: fixed !important;
+        top: 60px !important; /* 上移到搜索框上方 */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-height: 70vh !important;
+        margin: 0 !important;
     }
 }
 
@@ -941,7 +956,7 @@ search-box input:focus::after {
         border-radius: 4px 0 0 4px;
     }
     .translate-button {
-        padding: 0 8px;
+        padding: 0 16px; /* 移动端稍微收窄一点 */
     }
 }
 
@@ -1260,15 +1275,13 @@ search-box input:focus::after {
 /* 搜索下拉菜单样式 */
 .search-dropdown {
     position: absolute;
-    top: 100%; /* 修改为100%实现无缝连接 */
+    top: 100%;
     left: 0;
-    right: 60px; /* 调整右侧边缘到搜索按钮前 */
+    right: 60px;
     background: white;
-    border-radius: 0 0 8px 8px; /* 只保留底部圆角 */
+    border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    max-height: 400px;
-    overflow: hidden;
     display: none;
 }
 
@@ -1295,8 +1308,8 @@ search-box input:focus::after {
 /* 确保下拉内容正确显示 */
 .dropdown-content {
     display: flex;
-    height: 100%;
     background: white;
+    border-radius: 0 0 8px 8px;
 }
 
 /* 历史记录和热门搜索区域 */
@@ -1449,4 +1462,126 @@ search-box input:focus::after {
     margin-left: 8px;
     color: #ff6b6b;
     font-size: 12px;
+}
+
+/* 修复移动端搜索下拉菜单样式 */
+@media (max-width: 768px) {
+    .dropdown-content {
+        flex-direction: column;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .history-section {
+        flex: none; /* 移除flex布局 */
+        border-bottom: 1px solid #eee;
+        padding: 12px;
+    }
+    
+    .hot-section {
+        flex: none; /* 移除flex布局 */
+        padding: 12px;
+        overflow-y: visible; /* 允许内容完整显示 */
+    }
+    
+    .hot-list {
+        margin: 0;
+        padding: 0;
+    }
+    
+    .hot-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .hot-list li:last-child {
+        border-bottom: none;
+    }
+}
+
+/* 搜索下拉菜单基础样式优化 */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 60px;
+    background: white;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.dropdown-content {
+    display: flex;
+    background: white;
+    border-radius: 0 0 8px 8px;
+}
+
+/* 历史记录和热搜区域基础样式 */
+.history-section,
+.hot-section {
+    padding: 12px;
+}
+
+/* 热搜列表样式优化 */
+.hot-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+}
+
+.hot-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 8px;
+}
+
+/* 热搜区域标题栏样式 */
+.hot-section .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+/* 添加刷新按钮样式 */
+.refresh-hot {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.refresh-hot:hover {
+    color: #666;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.refresh-hot.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 刷新按钮旋转动画 */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.refresh-hot i {
+    font-size: 14px;
+}
+
+.refresh-hot.loading i {
+    animation: rotate 1s linear infinite;
 }

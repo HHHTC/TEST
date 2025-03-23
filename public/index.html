@@ -58,15 +58,16 @@
                         </div>
                         <div class="hot-section">
                             <div class="section-title">
-                                <i class="fas fa-fire"></i>
-                                <span>热门搜索</span>
+                                <div class="title-left">
+                                    <i class="fas fa-fire"></i>
+                                    <span>热门搜索</span>
+                                </div>
+                                <button class="refresh-hot" title="刷新热搜">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
                             </div>
                             <ul class="hot-list">
-                                <li>ChatGPT</li>
-                                <li>人工智能</li>
-                                <li>编程教程</li>
-                                <li>视频剪辑</li>
-                                <li>在线翻译</li>
+                                <!-- 热搜内容将通过JavaScript动态添加 -->
                             </ul>
                         </div>
                     </div>
@@ -155,20 +156,53 @@
                 
                         // 新增搜索引擎配置
                         const searchEngines = {
-                            "必应": "https://cn.bing.com/search?q={search}",
-                            "百度": "https://www.baidu.com/s?wd={search}",
-                            "杨得": "https://wap.yandex.com/search/?text={search}&lr=10591"
+                            "必应": {
+                                url: "https://cn.bing.com/search",
+                                param: "q"
+                            },
+                            "百度": {
+                                url: "https://www.baidu.com/s",
+                                param: "wd"
+                            },
+                            "杨得": {
+                                url: "https://wap.yandex.com/search/",
+                                param: "text"
+                            }
                         };
 
                         // 搜索功能实现
                         function handleSearch() {
                         const input = document.querySelector('.search-box input');
-                        const keyword = encodeURIComponent(input.value.trim());
+                        const keyword = input.value.trim();
                         const engine = document.querySelector('.search-engine-tabs .active').textContent;
                         
                         if (keyword) {
-                            const searchUrl = searchEngines[engine].replace('{search}', keyword);
-                            window.open(searchUrl, '_blank');
+                            // 创建一个临时表单
+                            const form = document.createElement('form');
+                            form.method = 'GET';
+                            form.action = searchEngines[engine].url;
+                            form.target = '_blank';
+                            
+                            // 创建搜索参数输入
+                            const searchInput = document.createElement('input');
+                            searchInput.type = 'hidden';
+                            searchInput.name = searchEngines[engine].param;
+                            searchInput.value = keyword;
+                            
+                            // 如果是杨得搜索，添加额外参数
+                            if (engine === "杨得") {
+                                const lrInput = document.createElement('input');
+                                lrInput.type = 'hidden';
+                                lrInput.name = 'lr';
+                                lrInput.value = '10591';
+                                form.appendChild(lrInput);
+                            }
+                            
+                            // 添加到表单并提交
+                            form.appendChild(searchInput);
+                            document.body.appendChild(form);
+                            form.submit();
+                            document.body.removeChild(form);
                         }
                          }
 
@@ -252,13 +286,43 @@
                             searchInput.addEventListener('focus', () => {
                                 searchDropdown.style.display = 'block';
                                 loadHistory();
-                                loadHotSearches(); // 添加加载热搜
+                                loadHotSearches(); // 这里不强制刷新
                             });
 
-                            // 加载热门搜索
-                            async function loadHotSearches() {
+                            // 热搜相关功能
+                            const REFRESH_INTERVAL = 30 * 60 * 1000; // 30分钟
+                            const UPDATE_INTERVAL = 5 * 60 * 60 * 1000; // 5小时
+
+                            // 获取热搜数据
+                            async function loadHotSearches(forceUpdate = false) {
                                 const hotList = document.querySelector('.hot-list');
+                                const refreshBtn = document.querySelector('.refresh-hot');
+                                
                                 try {
+                                    // 检查是否需要更新
+                                    const lastUpdate = localStorage.getItem('lastHotSearchUpdate');
+                                    const lastRefresh = localStorage.getItem('lastHotSearchRefresh');
+                                    const now = Date.now();
+
+                                    if (!forceUpdate && lastUpdate && (now - parseInt(lastUpdate) < UPDATE_INTERVAL)) {
+                                        // 从缓存加载数据
+                                        const cachedData = localStorage.getItem('hotSearchesCache');
+                                        if (cachedData) {
+                                            hotList.innerHTML = cachedData;
+                                            return;
+                                        }
+                                    }
+
+                                    // 检查刷新按钮冷却时间
+                                    if (forceUpdate && lastRefresh && (now - parseInt(lastRefresh) < REFRESH_INTERVAL)) {
+                                        const waitTime = Math.ceil((REFRESH_INTERVAL - (now - parseInt(lastRefresh))) / 60000);
+                                        alert(`请等待 ${waitTime} 分钟后再刷新`);
+                                        return;
+                                    }
+
+                                    // 显示加载状态
+                                    refreshBtn.classList.add('loading');
+                                    
                                     const response = await fetch('/.netlify/functions/search');
                                     const data = await response.json();
                                     
@@ -273,12 +337,26 @@
                                         `).join('');
                                         
                                         hotList.innerHTML = hotSearches;
+                                        
+                                        // 更新缓存和时间戳
+                                        localStorage.setItem('hotSearchesCache', hotSearches);
+                                        localStorage.setItem('lastHotSearchUpdate', now.toString());
+                                        if (forceUpdate) {
+                                            localStorage.setItem('lastHotSearchRefresh', now.toString());
+                                        }
                                     }
                                 } catch (error) {
                                     console.error('获取热搜失败:', error);
                                     hotList.innerHTML = '<li>获取热搜失败</li>';
+                                } finally {
+                                    refreshBtn.classList.remove('loading');
                                 }
                             }
+
+                            // 绑定刷新按钮事件
+                            document.querySelector('.refresh-hot').addEventListener('click', () => {
+                                loadHotSearches(true);
+                            });
 
                             // 页面加载时获取一次热搜
                             loadHotSearches();
