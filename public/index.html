@@ -48,6 +48,9 @@
                             <div class="section-title">
                                 <i class="fas fa-history"></i>
                                 <span>搜索历史</span>
+                                <button class="clear-all-history" title="清空历史记录">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                             <ul class="history-list">
                                 <!-- 历史记录将通过JavaScript动态添加 -->
@@ -138,12 +141,6 @@
                     <li>AI 工具</li>
                     <li>学习资源</li>
                     <li>社交媒体</li>
-                    <!-- 可添加更多测试项 -->
-                    <li>开发资源</li>
-                    <li>MC资源</li>
-                    <li>工业控制</li>
-                    <li>实用工具</li>
-                    <li>软件资源</li>
                 </ul>
             </nav>
         </div>
@@ -192,7 +189,9 @@
                             
                             // 监听滚动事件，关闭下拉菜单
                             window.addEventListener('scroll', () => {
-                                if (searchDropdown.style.display === 'block') {
+                                // 检查是否为移动端
+                                const isMobile = window.innerWidth <= 768;
+                                if (!isMobile && searchDropdown.style.display === 'block') {
                                     searchDropdown.style.display = 'none';
                                     // 取消搜索框的选中状态
                                     searchInput.blur();
@@ -203,9 +202,38 @@
                             function loadHistory() {
                                 const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
                                 historyList.innerHTML = history.map(item => `
-                                    <li>${item}</li>
+                                    <li>
+                                        <span class="history-text">${item}</span>
+                                        <button class="delete-history" title="删除此记录">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </li>
                                 `).join('');
+
+                                // 添加删除按钮事件监听
+                                document.querySelectorAll('.delete-history').forEach(btn => {
+                                    btn.addEventListener('click', (e) => {
+                                        e.stopPropagation(); // 阻止事件冒泡
+                                        const item = e.target.closest('li');
+                                        const text = item.querySelector('.history-text').textContent;
+                                        deleteHistoryItem(text);
+                                    });
+                                });
                             }
+
+                            // 删除单个历史记录
+                            function deleteHistoryItem(keyword) {
+                                let history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+                                history = history.filter(item => item !== keyword);
+                                localStorage.setItem('searchHistory', JSON.stringify(history));
+                                loadHistory();
+                            }
+
+                            // 清空所有历史记录
+                            document.querySelector('.clear-all-history').addEventListener('click', () => {
+                                localStorage.setItem('searchHistory', JSON.stringify([]));
+                                loadHistory();
+                            });
 
                             // 保存历史记录
                             function saveHistory(keyword) {
@@ -214,8 +242,8 @@
                                 history = history.filter(item => item !== keyword);
                                 // 添加到开头
                                 history.unshift(keyword);
-                                // 只保留前5条
-                                history = history.slice(0, 5);
+                                // 只保留前10条
+                                history = history.slice(0, 10);
                                 localStorage.setItem('searchHistory', JSON.stringify(history));
                                 loadHistory();
                             }
@@ -235,8 +263,8 @@
                                     const data = await response.json();
                                     
                                     if (data.code === 200 && data.data) {
-                                        // 只显示前5条热搜
-                                        const hotSearches = data.data.slice(0, 5).map(item => `
+                                        // 只显示前10条热搜
+                                        const hotSearches = data.data.slice(0, 10).map(item => `
                                             <li>
                                                 <span class="hot-index">${item.index}</span>
                                                 <span class="hot-title">${item.title}</span>
@@ -269,12 +297,11 @@
                                     // 如果点击的是热搜项，只获取标题部分
                                     const hotTitle = target.querySelector('.hot-title');
                                     if (hotTitle) {
-                                        searchInput.value = hotTitle.textContent;
-                                        searchInput.setAttribute('placeholder', '输入关键词搜索...');
+                                        searchInput.value = hotTitle.textContent.trim();
                                     } else {
-                                        // 如果是历史记录，直接使用li的文本内容
-                                        searchInput.value = target.textContent;
-                                        searchInput.setAttribute('placeholder', '输入关键词搜索...');
+                                        // 如果是历史记录，获取文本内容并清理空格
+                                        const historyText = target.querySelector('.history-text');
+                                        searchInput.value = historyText ? historyText.textContent.trim() : target.textContent.trim();
                                     }
                                     searchDropdown.style.display = 'none';
                                     handleSearch();
@@ -474,131 +501,118 @@
                         });
 
                         // 分类数据（添加标题字段）
-                        const categories = {
-                            "视频资源": {
-                                title: "视频",
-                                items: [
-                                    {
-                                        name: "哔哩哔哩",
-                                        url: "https://www.bilibili.com",
-                                        icon: "https://www.bilibili.com/favicon.ico"
+                        async function loadCategories() {
+                            try {
+                                console.log('开始加载分类数据...');
+                                // 直接返回分类数据
+                                const categories = {
+                                    "视频资源": {
+                                        title: "视频",
+                                        items: [
+                                            {
+                                                name: "哔哩哔哩",
+                                                url: "https://www.bilibili.com",
+                                                icon: "https://www.bilibili.com/favicon.ico"
+                                            },
+                                            {
+                                                name: "抖音",
+                                                url: "https://www.douyin.com",
+                                                icon: "https://www.douyin.com/favicon.ico"
+                                            },
+                                            {
+                                                name: "好好看",
+                                                url: "https://dl.hhkan0.com/",
+                                                icon: "https://vf.wbadl.cn/vod_dl_static_hkan/images/favicon.ico"
+                                            }
+                                        ]
+                                    },
+                                    "AI 工具": {
+                                        title: "AI",
+                                        items: [
+                                            {
+                                                name: "deepseek",
+                                                url: "https://www.deepseek.com/",
+                                                icon: "https://www.deepseek.com/favicon.ico"
+                                            },
+                                            {
+                                                name: "通义千问",
+                                                url: "https://tongyi.aliyun.com/",
+                                                icon: "https://img.alicdn.com/imgextra/i4/O1CN01EfJVFQ1uZPd7W4W6i_!!6000000006051-2-tps-112-112.png"
+                                            },
+                                            {
+                                                name: "Kimi",
+                                                url: "https://kimi.moonshot.cn/",
+                                                icon: "https://statics.moonshot.cn/kimi-chat/favicon.ico"
+                                            },
+                                            {
+                                                name: "纳米AI搜索",
+                                                url: "https://so.n.cn/",
+                                                icon: "https://so.n.cn/favicon.ico"
+                                            },
+                                            {
+                                                name: "硅基流动",
+                                                url: "https://cloud.siliconflow.cn/models",
+                                                icon: "https://cloud.siliconflow.cn/favicon.ico"
+                                            },
+                                            {
+                                                name: "问小白",
+                                                url: "https://www.wenxiaobai.com/chat/",
+                                                icon:"https://www.wenxiaobai.com/new_favicon.ico"
+                                            }
+                                        ]
+                                    },
+                                    "学习资源": {
+                                        title: "学习",
+                                        items: [
+                                            {
+                                                name: "Github",
+                                                url: "https://github.com/",
+                                                icon: "https://github.com/favicon.ico",
+                                                text:"知名代码开源平台"
+                                            },
+                                            {
+                                                name: "学术导航",
+                                                url: "https://paper2x.noedgeai.com/",
+                                                icon: "https://paper2x.noedgeai.com/svg/paper2x.svg",
+                                                text:"学术文献网站大全"
+                                            },
+                                            {
+                                                name: "Docx2",
+                                                url: "https://doc2x.noedgeai.com/",
+                                                icon:"https://doc2x.noedgeai.com/assets/doc2x-624ebfe5.svg",
+                                                text:"文献AI处理"
+                                            }
+                                        ]
+                                    },
+                                    "社交媒体": {
+                                        title: "社交媒体",
+                                        items: [
+                                            {
+                                                name: "微博",
+                                                url: "https://weibo.com/",
+                                                icon: "https://weibo.com/favicon.ico"
+                                            },
+                                            {
+                                                name: "知乎",
+                                                url: "https://www.zhihu.com/",
+                                                icon: "https://www.zhihu.com/favicon.ico"
+                                            },
+                                            {
+                                                name: "贴吧",
+                                                url: "https://tieba.baidu.com/",
+                                                icon: "https://tieba.baidu.com/favicon.ico"
+                                            }
+                                        ]
                                     }
-                                    ,
-                                    {
-                                        name: "抖音",
-                                        url: "https://www.douyin.com",
-                                        icon: "https://www.douyin.com/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "好好看",
-                                        url: "https://dl.hhkan0.com/",
-                                        icon: "https://vf.wbadl.cn/vod_dl_static_hkan/images/favicon.ico"
-                                    }
-                                    
-                                   
-                                ]
-                            },
-                            "AI 工具": {
-                                title: "AI",
-                                items: [
-                                    {
-                                        name: "deepseek",
-                                        url: "https://www.deepseek.com/",
-                                        icon: "https://www.deepseek.com/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "通义千问",
-                                        url: "https://tongyi.aliyun.com/",
-                                        icon: "https://img.alicdn.com/imgextra/i4/O1CN01EfJVFQ1uZPd7W4W6i_!!6000000006051-2-tps-112-112.png"
-                                    }
-                                    ,
-                                    {
-                                        name: "Kimi",
-                                        url: "https://kimi.moonshot.cn/",
-                                        icon: "https://statics.moonshot.cn/kimi-chat/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "纳米AI搜索",
-                                        url: "https://so.n.cn/",
-                                        icon: "https://so.n.cn/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "硅基流动",
-                                        url: "https://cloud.siliconflow.cn/models",
-                                        icon: "https://cloud.siliconflow.cn/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "问小白",
-                                        url: "https://www.wenxiaobai.com/chat/",
-                                        icon:"https://www.wenxiaobai.com/new_favicon.ico"
-                                    }
+                                };
+                                console.log('分类数据加载成功:', categories);
+                                return categories;
+                            } catch (error) {
+                                console.error('加载分类数据失败:', error);
+                                return {};
+                            }
+                        }
 
-
-                                ]
-                            },
-                            "学习资源": {
-                                title: "学习",
-                                items: [
-                                    {
-                                        name: "Github",
-                                        url: "https://github.com/",
-                                        icon: "https://github.com/favicon.ico",
-                                        text:"知名代码开源平台"
-                                    }
-                                    ,
-                                    {
-                                        name: "学术导航",
-                                        url: "https://paper2x.noedgeai.com/",
-                                        icon: "https://paper2x.noedgeai.com/svg/paper2x.svg",
-                                        text:"学术文献网站大全"
-                                    }
-                                     
-                                    ,
-                                    {
-                                        name: "Docx2",
-                                        url: "https://doc2x.noedgeai.com/",
-                                        icon:"https://doc2x.noedgeai.com/assets/doc2x-624ebfe5.svg",
-                                        text:"文献AI处理"
-                                    }
-                                     
-                                ]
-                            },
-                            "社交媒体": {
-                                title: "社交媒体",
-                                items: [
-                                    {
-                                        name: "微博",
-                                        url: "https://weibo.com/",
-                                        icon: "https://weibo.com/favicon.ico"
-                                    }
-                                    ,
-                                    {
-                                        name: "知乎",
-                                        url: "https://www.zhihu.com/",
-                                        icon: "https://www.zhihu.com/favicon.ico"
-                                    }
-                                     
-                                    ,
-                                    {
-                                        name: "贴吧",
-                                        url: "https://tieba.baidu.com/",
-                                        icon: "https://tieba.baidu.com/favicon.ico"
-                                    }
-                
-                                ]
-                            },  
- 
-                             
-
-
-                        };
-
-                                       
                         function generateCard(item) {
                             const card = document.createElement('a');
                             card.className = 'website-card';
@@ -622,51 +636,95 @@
                         }
 
                         // 初始化函数
-                        function initCategories() {
-                            const container = document.querySelector('.content-area');
-                            container.innerHTML = '';
+                        async function initCategories() {
+                            try {
+                                console.log('开始初始化分类...');
+                                const container = document.querySelector('.content-area');
+                                if (!container) {
+                                    throw new Error('找不到 content-area 容器');
+                                }
+                                container.innerHTML = '';
 
-                            Object.entries(categories).forEach(([category, data]) => {
-                                const categoryDiv = document.createElement('div');
-                                categoryDiv.className = 'category-content';
-                                categoryDiv.dataset.category = category;
+                                const categories = await loadCategories();
+                                if (Object.keys(categories).length === 0) {
+                                    throw new Error('没有找到分类数据');
+                                }
+                                
+                                Object.entries(categories).forEach(([category, data]) => {
+                                    console.log(`正在创建分类: ${category}`);
+                                    const categoryDiv = document.createElement('div');
+                                    categoryDiv.className = 'category-content';
+                                    categoryDiv.dataset.category = category;
 
-                                const title = document.createElement('h2');
-                                title.textContent = data.title;
-                                
-                                const cardGrid = document.createElement('div');
-                                cardGrid.className = 'card-grid';
-                                
-                                data.items.forEach(item => {
-                                    cardGrid.appendChild(generateCard(item));
+                                    const title = document.createElement('h2');
+                                    title.textContent = data.title;
+                                    
+                                    const cardGrid = document.createElement('div');
+                                    cardGrid.className = 'card-grid';
+                                    
+                                    data.items.forEach(item => {
+                                        cardGrid.appendChild(generateCard(item));
+                                    });
+
+                                    categoryDiv.append(title, cardGrid);
+                                    container.appendChild(categoryDiv);
                                 });
 
-                                categoryDiv.append(title, cardGrid);
-                                container.appendChild(categoryDiv);
-                            });
-
-                            document.querySelector('.category-content').classList.add('active');
+                                const firstCategory = document.querySelector('.category-content');
+                                if (firstCategory) {
+                                    firstCategory.classList.add('active');
+                                    console.log('分类初始化完成');
+                                } else {
+                                    throw new Error('未能创建任何分类内容');
+                                }
+                            } catch (error) {
+                                console.error('初始化分类失败:', error);
+                                const container = document.querySelector('.content-area');
+                                if (container) {
+                                    container.innerHTML = `<div class="error-message">加载分类失败: ${error.message}</div>`;
+                                }
+                            }
                         }
 
                         // 分类导航交互
                         function bindCategoryEvents() {
                             document.querySelectorAll('.category-nav li').forEach(li => {
                                 li.addEventListener('click', () => {
+                                    // 移除所有active类
                                     document.querySelectorAll('.category-nav li, .category-content').forEach(el => {
                                         el.classList.remove('active');
                                     });
                                     
+                                    // 添加active类到当前点击项
                                     li.classList.add('active');
                                     const targetCategory = li.textContent.trim();
-                                    document.querySelector(`[data-category="${targetCategory}"]`).classList.add('active');
+                                    const targetContent = document.querySelector(`[data-category="${targetCategory}"]`);
+                                    targetContent.classList.add('active');
+
+                                    // 获取导航栏高度
+                                    const navHeight = document.querySelector('.category-nav-container').offsetHeight;
+                                    
+                                    // 计算目标元素的位置
+                                    const targetPosition = targetContent.getBoundingClientRect().top + window.pageYOffset - navHeight;
+
+                                    // 平滑滚动到目标位置
+                                    window.scrollTo({
+                                        top: targetPosition,
+                                        behavior: 'smooth'
+                                    });
                                 });
                             });
                         }
 
-                        // 页面初始化
+                        // 确保在 DOM 加载完成后初始化分类
                         document.addEventListener('DOMContentLoaded', () => {
-                            initCategories();
-                            bindCategoryEvents();
+                            console.log('DOM加载完成，开始初始化...');
+                            initCategories().then(() => {
+                                bindCategoryEvents();
+                                console.log('分类和事件绑定完成');
+                            }).catch(error => {
+                                console.error('初始化过程出错:', error);
+                            });
                         });
 
                         // 搜索引擎切换

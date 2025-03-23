@@ -44,12 +44,12 @@ body {
 /* 搜索框整体容器 */
 .search-box {
     display: flex;
-    margin-top: 10px;
+    margin-top: 0;
     width: 100%;
     position: relative;
     height: 45px;
     background: #fff;
-    border: 2px solid #ddd;
+    border: none;
     border-radius: 4px;
     overflow: hidden;
 }
@@ -66,8 +66,9 @@ body {
 
 /* 搜索框获得焦点时的样式 */
 .search-box:focus-within {
-    border-color: #3b95f6;
-    box-shadow: 0 0 0 1px #3b95f6;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px 4px 0 0;
 }
 
 .search-box:focus-within .search-button {
@@ -580,45 +581,37 @@ card-grid {
 }
 
 .search-box input:focus {
-    border-color: #3B82F6;
+    border: none;
     outline: none;
-    position: relative;  /* 创建堆叠上下文 */
-    z-index: 1;
+    box-shadow: none;
 }
 
 @media (hover: none) {
     .search-box input:focus {
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        box-shadow: none;
     }
 }
 
 search-box input:focus::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    right: -2px ;  /* 控制右侧延伸长度 */
-    bottom: -2px;
-    left: -2px;
-    border: 2px solid #3B82F6;
-    border-radius: 4px;
-    pointer-events: none;
+    display: none;
 }
 
 .search-box {
     display: flex;
     margin-top: 10px;
-    position: relative;  /* 新增 */
-    overflow: hidden;    /* 新增：隐藏溢出效果 */
-    border-radius: 4px;   /* 新增 */
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    border: none;
 }
 
 .search-box input {
     flex: 1;
     padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 4px 0 0 4px;
-    font-size: 16px;
-    margin-right: -2px; /* 新增：消除右侧间隙 */
+    border: none;
+    margin-right: 0;
+    flex: 1;
+    padding: 0 12px;
 }
 
 /* ---------- 修改导航栏按钮样式 ---------- */
@@ -644,23 +637,26 @@ search-box input:focus::after {
 /* ---------- 修改搜索引擎按钮样式 ---------- */
 .search-engine-tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 0;
 }
 
 .search-engine-tabs button {
     padding: 8px 16px;
-    margin-right: 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     background: rgba(255,255,255,0.9);
     color: #333;
     transition: all 0.3s ease;
+    font-size: 15px;
+    transform: translateY(0);
 }
 
-.search-engine-tabs button:hover {
-    background: #f0f0f0;
+.search-engine-tabs button:hover:not(.active) {
+    color: #3B82F6;
+    transform: translateY(-2px);
+    background: #ffffff;
 }
 
 .search-engine-tabs .active {
@@ -671,7 +667,7 @@ search-box input:focus::after {
 /* 移动端适配 */
 @media (max-width: 768px) {
     .search-engine-tabs button {
-        padding: 6px 12px;
+        padding: 8px 16px;
         font-size: 14px;
     }
 }
@@ -881,6 +877,8 @@ search-box input:focus::after {
     height: 45px; /* 设置固定高度 */
     background: #fff;
     border-radius: 4px 0 0 4px;
+    border: none !important;
+    margin-right: 0;
 }
 
 .search-box input {
@@ -906,14 +904,8 @@ search-box input:focus::after {
     margin-left: -2px;
 }
 
-/* 搜索框获得焦点时的样式 */
-.search-box:focus-within {
-    border-color: #3b95f6;
-    box-shadow: 0 0 0 1px #3b95f6;
-}
-
-.search-box:focus-within .search-button {
-    background: #3b95f6;
+.search-button i {
+    font-size: 18px; /* 增大放大镜图标 */
 }
 
 /* 图标颜色变化 */
@@ -1268,11 +1260,11 @@ search-box input:focus::after {
 /* 搜索下拉菜单样式 */
 .search-dropdown {
     position: absolute;
-    top: calc(100% + 8px);
+    top: 100%; /* 修改为100%实现无缝连接 */
     left: 0;
-    right: 0;
+    right: 60px; /* 调整右侧边缘到搜索按钮前 */
     background: white;
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px; /* 只保留底部圆角 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     max-height: 400px;
@@ -1296,6 +1288,8 @@ search-box input:focus::after {
     background: #fff;
     border-radius: 4px 0 0 4px;
     z-index: 1001;
+    border: none !important;
+    margin-right: 0;
 }
 
 /* 确保下拉内容正确显示 */
@@ -1320,7 +1314,7 @@ search-box input:focus::after {
     }
     
     .history-section {
-        border-right: 1px solid #eee;
+        border-right: none; /* 移除分隔线 */
     }
 }
 
@@ -1331,11 +1325,11 @@ search-box input:focus::after {
     }
     
     .history-section {
-        border-bottom: 1px solid #eee;
+        border-bottom: none; /* 移除分隔线 */
     }
 }
 
-/* 标题样式 */
+/* 历史记录标题栏样式 */
 .section-title {
     display: flex;
     align-items: center;
@@ -1343,6 +1337,64 @@ search-box input:focus::after {
     padding: 8px 0;
     color: #666;
     font-size: 14px;
+    position: relative;
+}
+
+/* 清空历史记录按钮样式 */
+.clear-all-history {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.clear-all-history:hover {
+    color: #666;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* 历史记录项样式 */
+.history-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.history-list li:hover {
+    background-color: #f5f5f5;
+}
+
+/* 单个历史记录删除按钮 */
+.history-list li .delete-history {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.history-list li:hover .delete-history {
+    opacity: 1;
+}
+
+.history-list li .delete-history:hover {
+    color: #666;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 /* 列表样式 */
