@@ -504,8 +504,11 @@
                         async function loadCategories() {
                             try {
                                 console.log('开始加载分类数据...');
-                                // 直接返回分类数据
-
+                                const response = await fetch('./categories.json');
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                const categories = await response.json();
                                 console.log('分类数据加载成功:', categories);
                                 return categories;
                             } catch (error) {
