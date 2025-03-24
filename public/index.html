@@ -14,6 +14,16 @@
    
 </head>
 <body>
+    <button class="theme-switch-btn" title="切换暗色/亮色模式">
+        <i class="fas fa-moon"></i>
+        <i class="fas fa-sun"></i>
+    </button>
+    <button class="settings-btn" title="设置">
+        <i class="fas fa-cog"></i>
+    </button>
+    <button class="bg-switch-btn" title="切换背景壁纸">
+        <i class="fas fa-image"></i>
+    </button>
     <button id="scrollTopBtn" class="scroll-top-btn">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -27,19 +37,22 @@
         <!-- 搜索区域 -->
         <div class="search-section compact-search">
             <div class="search-engine-tabs">
-                <button class="active">必应</button>
-                <button>百度</button>
+                <button class="active">百度</button>
+                <button>必应</button>
                 <button>杨得</button>
             </div>
             <div class="search-container">
-                <div class="search-box">
+            <div class="search-box">
                     <input type="text" placeholder="输入关键词搜索...">
+                    <button class="clear-search" title="清除搜索内容">
+                        <i class="fas fa-times"></i>
+                    </button>
                     <a class="translate-button" href="#" title="翻译此内容">
                         <img src="icons/translator.png" alt="翻译" style="height:60%">
                     </a>
-                    <button class="search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
                 </div>
                 <!-- 将下拉菜单移到这里 -->
                 <div class="search-dropdown">
@@ -115,7 +128,7 @@
             </div>
             <div class="translate-body">
                 <div class="source-text-container">
-                    <textarea class="source-text" placeholder="请输入要翻译的文本"></textarea>
+                <textarea class="source-text" placeholder="请输入要翻译的文本"></textarea>
                     <button class="clear-text-btn" style="display: none;">
                         <i class="fas fa-times"></i>
                     </button>
@@ -126,7 +139,7 @@
                     <i class="fas fa-spinner" style="display: none;"></i>
                 </button>
                 <div class="target-text-container">
-                    <textarea class="target-text" placeholder="翻译结果" readonly></textarea>
+                <textarea class="target-text" placeholder="翻译结果" readonly></textarea>
                     <button class="copy-text-btn" style="display: none;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -287,6 +300,15 @@
                                 searchDropdown.style.display = 'block';
                                 loadHistory();
                                 loadHotSearches(); // 这里不强制刷新
+                            });
+
+                            // 清除搜索按钮点击事件
+                            const clearSearchBtn = document.querySelector('.clear-search');
+                            clearSearchBtn.addEventListener('click', (e) => {
+                                e.stopPropagation(); // 阻止事件冒泡
+                                searchInput.value = '';
+                                searchInput.focus(); // 保持焦点
+                                searchDropdown.style.display = 'block'; // 保持下拉菜单显示
                             });
 
                             // 热搜相关功能
@@ -577,8 +599,8 @@
                                 });
                             });
                         });
-
-                        // 分类数据（添加标题字段）
+ 
+                // 分类数据（添加标题字段）
                         async function loadCategories() {
                             try {
                                 console.log('开始加载分类数据...');
@@ -594,26 +616,44 @@
                                 return {};
                             }
                         }
-
+                                       
                         function generateCard(item) {
                             const card = document.createElement('a');
                             card.className = 'website-card';
                             card.href = item.url;
                             card.target = '_blank';
-                            card.innerHTML = `
-                                <div class="card-header">
-                                    ${item.icon ? 
-                                        `<img src="${item.icon}" 
-                                            class="favicon" 
-                                            alt="${item.name}图标"
-                                            onerror="this.replaceWith(this.parentNode.querySelector('.link-icon'))">` : 
-                                        `<i class="fas fa-link link-icon"></i>`}
-                                    <h3>${item.name}</h3>
-                                </div>
-                                <div class="website-link">
-                                    ${item.text ? item.text : item.url}
-                                </div>
-                            `;
+                            
+                            const cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+                            
+                            if (item.icon) {
+                                const favicon = document.createElement('img');
+                                favicon.className = 'favicon';
+                                favicon.src = item.icon;
+                                favicon.alt = `${item.name}图标`;
+                                favicon.onerror = function() {
+                                    this.style.display = 'none';
+                                    this.nextElementSibling.style.display = 'inline-block';
+                                };
+                                cardHeader.appendChild(favicon);
+                            }
+                            
+                            const linkIcon = document.createElement('i');
+                            linkIcon.className = 'fas fa-link link-icon';
+                            linkIcon.style.display = item.icon ? 'none' : 'inline-block';
+                            cardHeader.appendChild(linkIcon);
+                            
+                            const title = document.createElement('h3');
+                            title.textContent = item.name;
+                            cardHeader.appendChild(title);
+                            
+                            const link = document.createElement('div');
+                            link.className = 'website-link';
+                            link.textContent = item.text || item.url;
+                            
+                            card.appendChild(cardHeader);
+                            card.appendChild(link);
+                            
                             return card;
                         }
 
@@ -621,36 +661,36 @@
                         async function initCategories() {
                             try {
                                 console.log('开始初始化分类...');
-                                const container = document.querySelector('.content-area');
+                            const container = document.querySelector('.content-area');
                                 if (!container) {
                                     throw new Error('找不到 content-area 容器');
                                 }
-                                container.innerHTML = '';
+                            container.innerHTML = '';
 
                                 const categories = await loadCategories();
                                 if (Object.keys(categories).length === 0) {
                                     throw new Error('没有找到分类数据');
                                 }
-                                
-                                Object.entries(categories).forEach(([category, data]) => {
+
+                            Object.entries(categories).forEach(([category, data]) => {
                                     console.log(`正在创建分类: ${category}`);
-                                    const categoryDiv = document.createElement('div');
-                                    categoryDiv.className = 'category-content';
-                                    categoryDiv.dataset.category = category;
+                                const categoryDiv = document.createElement('div');
+                                categoryDiv.className = 'category-content';
+                                categoryDiv.dataset.category = category;
 
-                                    const title = document.createElement('h2');
-                                    title.textContent = data.title;
-                                    
-                                    const cardGrid = document.createElement('div');
-                                    cardGrid.className = 'card-grid';
-                                    
-                                    data.items.forEach(item => {
-                                        cardGrid.appendChild(generateCard(item));
-                                    });
-
-                                    categoryDiv.append(title, cardGrid);
-                                    container.appendChild(categoryDiv);
+                                const title = document.createElement('h2');
+                                title.textContent = data.title;
+                                
+                                const cardGrid = document.createElement('div');
+                                cardGrid.className = 'card-grid';
+                                
+                                data.items.forEach(item => {
+                                    cardGrid.appendChild(generateCard(item));
                                 });
+
+                                categoryDiv.append(title, cardGrid);
+                                container.appendChild(categoryDiv);
+                            });
 
                                 const firstCategory = document.querySelector('.category-content');
                                 if (firstCategory) {
@@ -702,23 +742,338 @@
                         document.addEventListener('DOMContentLoaded', () => {
                             console.log('DOM加载完成，开始初始化...');
                             initCategories().then(() => {
-                                bindCategoryEvents();
+                            bindCategoryEvents();
                                 console.log('分类和事件绑定完成');
                             }).catch(error => {
                                 console.error('初始化过程出错:', error);
                             });
                         });
 
-                        // 搜索引擎切换
-                        document.querySelectorAll('.search-engine-tabs button').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                document.querySelector('.search-engine-tabs .active').classList.remove('active');
-                                btn.classList.add('active');
+                    // 搜索引擎切换
+                    document.querySelectorAll('.search-engine-tabs button').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelector('.search-engine-tabs .active').classList.remove('active');
+                            btn.classList.add('active');
+                        });
+                    });
+
+                        // 背景图片列表
+                        const backgrounds = [
+                            'images/HTC1.png',  // 默认背景
+                            'images/HTC2.jpg',
+                            'images/HTC3.png',
+                        ];
+
+                        // 获取当前背景索引
+                        let currentBgIndex = parseInt(localStorage.getItem('currentBgIndex') || '0');
+
+                        // 页面加载时设置保存的背景
+                        document.addEventListener('DOMContentLoaded', () => {
+                            document.body.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
+                        });
+
+                        // 暗色模式切换功能
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const themeBtn = document.querySelector('.theme-switch-btn');
+                            const moonIcon = themeBtn.querySelector('.fa-moon');
+                            const sunIcon = themeBtn.querySelector('.fa-sun');
+                            
+                            // 从 localStorage 获取主题设置
+                            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+                            if (isDarkMode) {
+                                document.body.classList.add('dark-mode');
+                                moonIcon.style.opacity = '0';
+                                sunIcon.style.opacity = '1';
+                            } else {
+                                moonIcon.style.opacity = '1';
+                                sunIcon.style.opacity = '0';
+                            }
+                            
+                            // 切换主题
+                            themeBtn.addEventListener('click', () => {
+                                document.body.classList.toggle('dark-mode');
+                                const isDark = document.body.classList.contains('dark-mode');
+                                
+                                // 切换图标显示
+                                if (isDark) {
+                                    moonIcon.style.opacity = '0';
+                                    sunIcon.style.opacity = '1';
+                                } else {
+                                    moonIcon.style.opacity = '1';
+                                    sunIcon.style.opacity = '0';
+                                }
+                                
+                                // 保存设置
+                                localStorage.setItem('darkMode', isDark);
                             });
                         });
-                    </script>
+
+                        // 自定义壁纸功能
+                        let customWallpapers = [];
+                        let currentCustomWallpaperIndex = 0;
+
+                        // 选择文件夹
+                        async function selectWallpaperFolder() {
+                            try {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.multiple = true;
+                                input.accept = 'image/*,video/mp4'; // 添加MP4格式支持
+                                
+                                input.onchange = async (e) => {
+                                    const files = Array.from(e.target.files);
+                                    if (files.length > 0) {
+                                        customWallpapers = files.map(file => {
+                                            if (file.type.startsWith('video/')) {
+                                                // 如果是视频文件，创建视频元素
+                                                const video = document.createElement('video');
+                                                video.src = URL.createObjectURL(file);
+                                                video.loop = true;
+                                                video.muted = true;
+                                                video.playsInline = true;
+                                                return video;
+                                            } else {
+                                                // 如果是图片文件，创建URL
+                                                return URL.createObjectURL(file);
+                                            }
+                                        });
+                                        currentCustomWallpaperIndex = 0;
+                                        
+                                        // 保存设置
+                                        const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+                                        settings.useCustomWallpaper = true;
+                                        localStorage.setItem('settings', JSON.stringify(settings));
+                                        
+                                        // 更新输入框显示
+                                        document.getElementById('wallpaperPath').value = `${files.length} 个文件已选择`;
+                                        
+                                        // 应用第一个壁纸
+                                        applyWallpaper(customWallpapers[0]);
+                                    }
+                                };
+                                
+                                input.click();
+                            } catch (error) {
+                                console.error('选择文件失败:', error);
+                                alert('选择文件失败: ' + error.message);
+                            }
+                        }
+
+                        // 添加应用壁纸的函数
+                        function applyWallpaper(wallpaper) {
+                            const body = document.body;
+                            
+                            // 清除之前的背景
+                            body.style.backgroundImage = '';
+                            body.style.background = '';
+                            
+                            // 移除之前的视频元素（如果存在）
+                            const existingVideo = body.querySelector('video');
+                            if (existingVideo) {
+                                existingVideo.remove();
+                            }
+                            
+                            if (wallpaper instanceof HTMLVideoElement) {
+                                // 如果是视频
+                                wallpaper.style.position = 'fixed';
+                                wallpaper.style.top = '0';
+                                wallpaper.style.left = '0';
+                                wallpaper.style.width = '100%';
+                                wallpaper.style.height = '100%';
+                                wallpaper.style.objectFit = 'cover';
+                                wallpaper.style.zIndex = '-1';
+                                body.appendChild(wallpaper);
+                                wallpaper.play().catch(error => console.error('视频播放失败:', error));
+                            } else {
+                                // 如果是图片
+                                body.style.backgroundImage = `url('${wallpaper}')`;
+                            }
+                        }
+
+                        // 修改背景切换按钮点击事件
+                        document.querySelector('.bg-switch-btn').addEventListener('click', () => {
+                            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+                            
+                            if (settings.useCustomWallpaper && customWallpapers.length > 0) {
+                                // 使用自定义背景
+                                currentCustomWallpaperIndex = (currentCustomWallpaperIndex + 1) % customWallpapers.length;
+                                applyWallpaper(customWallpapers[currentCustomWallpaperIndex]);
+                            } else {
+                                // 使用默认背景
+                                currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+                                document.body.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
+                                localStorage.setItem('currentBgIndex', currentBgIndex.toString());
+                            }
+                        });
+
+                        // 修改设置面板相关代码
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const settingsBtn = document.querySelector('.settings-btn');
+                            const settingsOverlay = document.querySelector('.settings-overlay');
+                            const settingsPanel = document.querySelector('.settings-panel');
+                            const closeSettingsBtn = document.querySelector('.close-settings-btn');
+                            const useDefaultWallpaper = document.getElementById('useDefaultWallpaper');
+                            const wallpaperPathContainer = document.querySelector('.wallpaper-path-container');
+                            const wallpaperPathInput = document.getElementById('wallpaperPath');
+                            const selectPathBtn = document.querySelector('.select-path-btn');
+
+                            // 打开设置面板
+                            settingsBtn.addEventListener('click', () => {
+                                settingsOverlay.style.display = 'block';
+                                settingsPanel.classList.add('show');
+                                document.body.style.overflow = 'hidden';
+                            });
+
+                            // 关闭设置面板
+                            function closeSettings() {
+                                settingsPanel.classList.remove('show');
+                                settingsOverlay.style.display = 'none';
+                                document.body.style.overflow = '';
+                            }
+
+                            closeSettingsBtn.addEventListener('click', closeSettings);
+                            settingsOverlay.addEventListener('click', closeSettings);
+
+                            // 加载设置
+                            function loadSettings() {
+                                // 加载壁纸设置
+                                const useCustomWallpaper = localStorage.getItem('useCustomWallpaper') === 'true';
+                                const wallpaperPath = localStorage.getItem('wallpaperPath');
+                                const customWallpapers = JSON.parse(localStorage.getItem('customWallpapers') || '[]');
+                                
+                                // 更新壁纸设置UI
+                                document.getElementById('useCustomWallpaper').checked = useCustomWallpaper;
+                                document.getElementById('wallpaperPath').value = wallpaperPath || '';
+                                document.getElementById('wallpaperPathContainer').style.display = useCustomWallpaper ? 'block' : 'none';
+                                
+                                // 应用壁纸
+                                if (useCustomWallpaper && customWallpapers.length > 0) {
+                                    applyWallpaper(customWallpapers[0]);
+                                } else {
+                                    // 使用默认壁纸
+                                    const defaultWallpapers = [
+                                        'images/HTC1.png',
+                                        'images/HTC2.jpg',
+                                        'images/HTC3.png'
+                                    ];
+                                    const currentIndex = parseInt(localStorage.getItem('currentBackgroundIndex') || '0');
+                                    document.body.style.backgroundImage = `url('${defaultWallpapers[currentIndex]}')`;
+                                    // 移除可能存在的视频元素
+                                    const existingVideo = document.body.querySelector('video');
+                                    if (existingVideo) {
+                                        existingVideo.remove();
+                                    }
+                                }
+                                
+                                // 加载分类显示设置
+                                const showAllCategories = localStorage.getItem('showAllCategories') !== 'false';
+                                document.getElementById('showAllCategories').checked = showAllCategories;
+                                updateCategoriesVisibility(showAllCategories);
+                                
+                                // 加载暗色模式设置
+                                const isDarkMode = localStorage.getItem('darkMode') === 'true';
+                                document.body.classList.toggle('dark-mode', isDarkMode);
+                            }
+
+                            // 保存设置
+                            function saveSettings() {
+                                // 保存壁纸设置
+                                const useCustomWallpaper = document.getElementById('useCustomWallpaper').checked;
+                                const wallpaperPath = document.getElementById('wallpaperPath').value;
+                                
+                                localStorage.setItem('useCustomWallpaper', useCustomWallpaper);
+                                localStorage.setItem('wallpaperPath', wallpaperPath);
+                                
+                                // 如果使用自定义壁纸，保存壁纸路径
+                                if (useCustomWallpaper && wallpaperPath) {
+                                    const customWallpapers = [wallpaperPath];
+                                    localStorage.setItem('customWallpapers', JSON.stringify(customWallpapers));
+                                }
+                                
+                                // 保存分类显示设置
+                                const showAllCategories = document.getElementById('showAllCategories').checked;
+                                localStorage.setItem('showAllCategories', showAllCategories);
+                                
+                                // 保存暗色模式设置
+                                const isDarkMode = document.body.classList.contains('dark-mode');
+                                localStorage.setItem('darkMode', isDarkMode);
+                            }
+
+                            // 更新分类显示状态
+                            function updateCategoriesVisibility(show) {
+                                const categories = document.querySelectorAll('.category-content');
+                                categories.forEach(category => {
+                                    category.style.display = show ? 'block' : 'none';
+                                });
+                            }
+
+                            // 监听设置变化
+                            useDefaultWallpaper.addEventListener('change', () => {
+                                wallpaperPathContainer.style.display = useDefaultWallpaper.checked ? 'none' : 'block';
+                                saveSettings();
+                                
+                                // 切换回默认背景
+                                if (useDefaultWallpaper.checked) {
+                                    document.body.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
+                                    // 移除可能存在的视频元素
+                                    const existingVideo = document.body.querySelector('video');
+                                    if (existingVideo) {
+                                        existingVideo.remove();
+                                    }
+                                }
+                            });
+
+                            // 监听分类显示设置变化
+                            document.getElementById('showAllCategories').addEventListener('change', (e) => {
+                                updateCategoriesVisibility(e.target.checked);
+                                saveSettings();
+                            });
+
+                            // 选择文件夹
+                            selectPathBtn.addEventListener('click', selectWallpaperFolder);
+
+                            // 页面加载时加载设置
+                            loadSettings();
+                        });
+            </script>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+
+    <!-- 在body末尾添加设置面板 -->
+    <div class="settings-overlay"></div>
+    <div class="settings-panel">
+        <div class="settings-header">
+            <h2>设置</h2>
+            <button class="close-settings-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label class="setting-label">使用网站壁纸</label>
+                <label class="switch">
+                    <input type="checkbox" id="useDefaultWallpaper" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">显示所有分类</label>
+                <label class="switch">
+                    <input type="checkbox" id="showAllCategories" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="setting-item wallpaper-path-container" style="display: none;">
+                <label class="setting-label">自定义壁纸路径</label>
+                <div class="path-input-container">
+                    <input type="text" id="wallpaperPath" readonly placeholder="请选择壁纸文件夹路径">
+                    <button class="select-path-btn">选择路径</button>
+                </div>
+                <p class="path-hint">支持的格式：PNG、JPG、MP4</p>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

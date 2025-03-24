@@ -16,7 +16,25 @@
                 "name": "好好看",
                 "url": "https://dl.hhkan0.com/",
                 "icon": "https://vf.wbadl.cn/vod_dl_static_hkan/images/favicon.ico"
+            },
+            {
+                "name": "低端影视",
+                "url": "https://ddys.pro/",
+                "icon": "https://ddys.pro/favicon.ico"
             }
+            ,
+            {
+                "name": "厂长资源",
+                "url": "https://www.czzy.site/",
+                "icon": "https://www.czzy77.com/favicon.ico"
+            }
+            ,
+            {
+                "name": "橘子动漫",
+                "url": "https://www.jzacg.com/",
+                "icon": "https://r2img.nanoacg.com/favicon.png"
+            }
+
         ]
     },
     "AI 工具": {
@@ -96,5 +114,202 @@
                 "icon": "https://tieba.baidu.com/favicon.ico"
             }
         ]
+    },
+    "开发资源": {
+        "title": "Java",
+        "items": [
+            {
+                "name": "Java官网",
+                "url": "https://www.oracle.com/cn/java/technologies/downloads/",
+                "icon": "https://www.oracle.com/favicon.ico"
+            },
+            {
+                "name": "jdk下载",
+                "url": "https://www.azul.com/downloads/?package=jdk#zulu",
+                "icon": "https://www.azul.com/wp-content/themes/azul/assets/img/azul-favicon-block.png"
+            }
+        ]
+    },
+    "MC资源": {
+        "title": "Minecraft",
+        "items": [
+            {
+                "name": "PCL2",
+                "url": "https://ltcat.lanzouv.com/b0aj6gsid",
+                "icon": "icons/Plain Craft Launcher 2.ico",
+                "text": "PCL2下载，提取码pcl2"
+            },
+            {
+                "name": "MC百科",
+                "url": "https://www.mcmod.cn/",
+                "icon": "https://www.mcmod.cn/favicon.ico",
+                "text": "国内最大的MOD百科"
+            },
+            {
+                "name": "中文Wiki",
+                "url": "https://minecraft.fandom.com/zh/wiki/Minecraft_Wiki",
+                "icon": "icons/Wiki.ico",
+                "text": "MC原版知识库"
+            },
+            {
+                "name": "PMC",
+                "url": "https://www.planetminecraft.com/data-packs/",
+                "icon": "icons/mc数据包.png",
+                "text": "MC数据包下载"
+            },
+            {
+                "name": "NameMC",
+                "url": "https://zh-cn.namemc.com/minecraft-skins",
+                "icon": "https://s.namemc.com/favicon.ico",
+                "text": "MC皮肤下载"
+            },
+            {
+                "name": "chunkbase",
+                "url": "https://www.chunkbase.com/apps/",
+                "icon": "https://www.chunkbase.com/favicon.ico",
+                "text": "MC种子查询"
+            }
+        ]
+    },
+    "工业控制": {
+        "title": "工控网",
+        "items": [
+            {
+                "name": "电气天下",
+                "url": "https://www.dq123.com/",
+                "icon": "https://www.dq123.com/favicon.ico",
+                "text": "电气数据分享社区"
+            },
+            {
+                "name": "工控网",
+                "url": "https://www.gongkong.com/",
+                "icon": "https://www.gongkong.com/favicon.ico",
+                "text": "工业互联与智能制造平台"
+            },
+            {
+                "name": "工控猫",
+                "url": "https://www.gongkongmall.com/",
+                "icon": "https://www.gongkongmall.com/upload/logo/favorites_icon.png?v=1742168571",
+                "text": "工控电商"
+            },
+            {
+                "name": "半导小新",
+                "url": "https://www.semiee.com/index",
+                "icon": "https://www.semiee.com/static/favicon.ico",
+                "text": "芯片查询工具"
+            },
+            {
+                "name": "芯查查",
+                "url": "https://www.xcc.com/",
+                "icon": "https://www.xcc.com/favicon.ico",
+                "text": "电子信息产业数据引擎"
+            },
+            {
+                "name": "聚龙芯城",
+                "url": "https://www.golon.net/",
+                "icon": "https://ts2.tc.mm.bing.net/th?id=ODLS.ee5a00dd-7d65-4609-8b2c-ed847974c00f&w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2",
+                "text": "电子电路硬件服务商"
+            }
+        ]
+    },
+    "实用工具": {
+        "title": "工具",
+        "items": [
+            {
+                "name": "Bandzip",
+                "url": "https://dl.bandisoft.com/bandizip.old/BANDIZIP6-SETUP.EXE?2",
+                "icon": "icons/Bandizip.ico",
+                "text": "强大且简洁的压缩工具"
+            },
+            {
+                "name": "Geek Uninstaller",
+                "url": "https://geekuninstaller.com/",
+                "icon": "https://geekuninstaller.com/favicon.ico",
+                "text": "强力的卸载工具"
+            },
+            {
+                "name": "Greasy Fork",
+                "url": "https://greasyfork.org/",
+                "icon": "icons/GreasyFork.png",
+                "text": "油猴脚本官网，需要梯子"
+            },
+            {
+                "name": "Greasy Fork",
+                "url": "https://greasyfork.zh-cn.eu.org",
+                "icon": "https://s21.ax1x.com/2025/02/21/pEQznoQ.png",
+                "text": "油猴脚本镜像，没有梯子用"
+            },
+            {
+                "name": "白描",
+                "url": "https://web.baimiaoapp.com/",
+                "icon": "https://xlimage.uzero.cn/shinescan/res/favicon.ico",
+                "text": "图片文字提取"
+            },
+            {
+                "name": "Netlify",
+                "url": "https://www.netlify.com/",
+                "icon": "https://www.netlify.com/favicon/favicon.ico",
+                "text": "代码托管平台"
+            },
+            {
+                "name": "CSS压缩工具",
+                "url": "https://tool.lu/css/",
+                "icon": "https://tool.lu/favicon.ico",
+                "text": "CSS优化和压缩"
+            },
+            {
+                "name": "轻略",
+                "url": "https://gonglue.qinggl.com/app/img/icon.jsp",
+                "icon": "https://gonglue.qinggl.com/favicon.ico",
+                "text": "网站图标抓取"
+            },
+            {
+                "name": "Watt Toolkit",
+                "url": "https://steampp.net/",
+                "icon": "https://steampp.net/favicon.ico",
+                "text": "免费加速器"
+            },
+            {
+                "name": "iFixit",
+                "url": "https://zh.ifixit.com/",
+                "icon": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-57x57.png",
+                "text": "免费修理手册"
+            },
+            {
+                "name": "简单设计",
+                "url": "https://jiandan.link/common-tools",
+                "icon": "https://d.jiandan.link/office_logo_lv.svg",
+                "text": "图片在线编辑格式转换"
+            },
+            {
+                "name": "iconfinder",
+                "url": "https://www.iconfinder.com/",
+                "icon": "https://www.iconfinder.com/static/img/favicons/apple-touch-icon.png?3186e39e61",
+                "text": "矢量图素材"
+            },
+            {
+                "name": "Uiverse",
+                "url": "https://uiverse.io/buttons",
+                "icon": "https://uiverse.io/favicon.ico",
+                "text": "UI素材网"
+            }
+        ]
+    },
+    "软件资源": {
+        "title": "软件资源站",
+        "items": [
+            {
+                "name": "果核剥壳",
+                "url": "https://www.ghxi.com/",
+                "icon": "https://www.ghxi.com/favicon.ico",
+                "text": "纯净软件资源站"
+            },
+            {
+                "name": "爱纯净",
+                "url": "https://www.aichunjing.com/",
+                "icon": "https://www.aichunjing.com/favicon.ico",
+                "text": "装机必备资源站"
+            }
+        ]
     }
-} 
+}
