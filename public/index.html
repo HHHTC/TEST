@@ -155,6 +155,12 @@
                     <li>AI 工具</li>
                     <li>学习资源</li>
                     <li>社交媒体</li>
+                    <!-- 可添加更多测试项 -->
+                    <li>开发资源</li>
+                    <li>MC资源</li>
+                    <li>工业控制</li>
+                    <li>实用工具</li>
+                    <li>软件资源</li>        
                 </ul>
             </nav>
         </div>
@@ -812,65 +818,87 @@
                         let customWallpapers = [];
                         let currentCustomWallpaperIndex = 0;
 
-                        // 选择文件夹
+                        // 修改选择文件夹函数
                         async function selectWallpaperFolder() {
                             try {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.multiple = true;
-                                input.accept = 'image/*,video/mp4';
-                                
-                                input.onchange = async (e) => {
-                                    const files = Array.from(e.target.files);
-                                    if (files.length > 0) {
-                                        // 创建所有壁纸的URL
-                                        const wallpaperUrls = files.map(file => {
-                                            if (file.type.startsWith('video/')) {
-                                                // 如果是视频文件，创建视频元素
-                                                const video = document.createElement('video');
-                                                video.src = URL.createObjectURL(file);
-                                                video.loop = true;
-                                                video.muted = true;
-                                                video.playsInline = true;
-                                                video.autoplay = true;
-                                                return video;
-                                            } else {
-                                                // 如果是图片文件，创建URL
-                                                return URL.createObjectURL(file);
+                                // 检查浏览器是否支持 File System Access API
+                                if (!('showOpenFilePicker' in window)) {
+                                    throw new Error('您的浏览器不支持现代文件选择功能，请升级浏览器。');
+                                }
+
+                                // 配置文件选择器选项
+                                const pickerOpts = {
+                                    types: [
+                                        {
+                                            description: '壁纸文件',
+                                            accept: {
+                                                'image/*': ['.png', '.jpg', '.jpeg'],
+                                                'video/*': ['.mp4']
                                             }
-                                        });
-                                        
-                                        // 保存设置
-                                        localStorage.setItem('useDefaultWallpaper', 'false');
-                                        localStorage.setItem('wallpaperPath', `${files.length} 个文件已选择`);
-                                        
-                                        // 保存所有壁纸的URL
-                                        const wallpaperData = wallpaperUrls.map(w => {
-                                            if (w instanceof HTMLVideoElement) {
-                                                return {
-                                                    type: 'video',
-                                                    src: w.src
-                                                };
-                                            } else {
-                                                return {
-                                                    type: 'image',
-                                                    src: w
-                                                };
-                                            }
-                                        });
-                                        
-                                        localStorage.setItem('customWallpapers', JSON.stringify(wallpaperData));
-                                        localStorage.setItem('currentCustomWallpaperIndex', '0');
-                                        
-                                        // 更新输入框显示
-                                        document.getElementById('wallpaperPath').value = `${files.length} 个文件已选择`;
-                                        
-                                        // 应用第一个壁纸
-                                        applyWallpaper(wallpaperUrls[0]);
-                                    }
+                                        },
+                                    ],
+                                    excludeAcceptAllOption: true,
+                                    multiple: true
                                 };
+
+                                // 打开文件选择器
+                                const fileHandles = await window.showOpenFilePicker(pickerOpts);
                                 
-                                input.click();
+                                if (fileHandles.length > 0) {
+                                    // 获取所有文件
+                                    const files = await Promise.all(fileHandles.map(handle => handle.getFile()));
+                                    
+                                    // 创建所有壁纸的URL和句柄
+                                    const wallpaperUrls = await Promise.all(files.map(async file => {
+                                        if (file.type.startsWith('video/')) {
+                                            // 如果是视频文件，创建视频元素
+                                            const video = document.createElement('video');
+                                            video.src = URL.createObjectURL(file);
+                                            video.loop = true;
+                                            video.muted = true;
+                                            video.playsInline = true;
+                                            video.autoplay = true;
+                                            return {
+                                                type: 'video',
+                                                element: video,
+                                                name: file.name,
+                                                src: video.src
+                                            };
+                                        } else {
+                                            // 如果是图片文件，创建URL
+                                            const url = URL.createObjectURL(file);
+                                            return {
+                                                type: 'image',
+                                                name: file.name,
+                                                src: url
+                                            };
+                                        }
+                                    }));
+                                    
+                                    // 保存设置
+                                    localStorage.setItem('useDefaultWallpaper', 'false');
+                                    localStorage.setItem('wallpaperPath', `已选择 ${files.length} 个文件`);
+                                    
+                                    // 保存壁纸数据
+                                    const wallpaperData = wallpaperUrls.map(w => ({
+                                        type: w.type,
+                                        name: w.name,
+                                        src: w.src
+                                    }));
+                                    
+                                    localStorage.setItem('customWallpapers', JSON.stringify(wallpaperData));
+                                    localStorage.setItem('currentCustomWallpaperIndex', '0');
+                                    
+                                    // 更新输入框显示
+                                    document.getElementById('wallpaperPath').value = `已选择 ${files.length} 个文件`;
+                                    
+                                    // 应用第一个壁纸
+                                    if (wallpaperUrls[0].type === 'video') {
+                                        applyWallpaper(wallpaperUrls[0].element);
+                                    } else {
+                                        applyWallpaper(wallpaperUrls[0].src);
+                                    }
+                                }
                             } catch (error) {
                                 console.error('选择文件失败:', error);
                                 alert('选择文件失败: ' + error.message);
@@ -888,6 +916,7 @@
                             // 移除之前的视频元素（如果存在）
                             const existingVideo = body.querySelector('video');
                             if (existingVideo) {
+                                URL.revokeObjectURL(existingVideo.src); // 释放之前的 URL
                                 existingVideo.remove();
                             }
                             
@@ -907,12 +936,14 @@
                                 body.appendChild(wallpaper);
                                 
                                 // 确保视频播放
-                                const playVideo = () => {
-                                    wallpaper.play().catch(error => {
+                                const playVideo = async () => {
+                                    try {
+                                        await wallpaper.play();
+                                    } catch (error) {
                                         console.error('视频播放失败:', error);
                                         // 如果播放失败，尝试重新播放
                                         setTimeout(playVideo, 1000);
-                                    });
+                                    }
                                 };
                                 playVideo();
                             } else {
@@ -935,7 +966,7 @@
                                     // 保存新的索引
                                     localStorage.setItem('currentCustomWallpaperIndex', nextIndex.toString());
                                     
-                                    // 创建新的视频元素或使用URL
+                                    // 应用下一个壁纸
                                     const wallpaper = wallpaperData[nextIndex];
                                     if (wallpaper.type === 'video') {
                                         const video = document.createElement('video');
@@ -963,6 +994,23 @@
                             }
                         });
 
+                        // 在页面卸载时清理资源
+                        window.addEventListener('beforeunload', () => {
+                            // 清理所有已创建的 Object URL
+                            const video = document.querySelector('video');
+                            if (video) {
+                                URL.revokeObjectURL(video.src);
+                            }
+                            
+                            // 清理存储在 localStorage 中的临时 URL
+                            const wallpaperData = JSON.parse(localStorage.getItem('customWallpapers') || '[]');
+                            wallpaperData.forEach(wallpaper => {
+                                if (wallpaper.src && wallpaper.src.startsWith('blob:')) {
+                                    URL.revokeObjectURL(wallpaper.src);
+                                }
+                            });
+                        });
+
                         // 修改设置面板相关代码
                         document.addEventListener('DOMContentLoaded', () => {
                             const settingsBtn = document.querySelector('.settings-btn');
@@ -970,10 +1018,9 @@
                             const settingsPanel = document.querySelector('.settings-panel');
                             const closeSettingsBtn = document.querySelector('.close-settings-btn');
                             const useDefaultWallpaper = document.getElementById('useDefaultWallpaper');
-                            const wallpaperPathContainer = document.querySelector('.wallpaper-path-container');
-                            const wallpaperPathInput = document.getElementById('wallpaperPath');
-                            const selectPathBtn = document.querySelector('.select-path-btn');
-                            const showAllCategories = document.getElementById('showAllCategories');
+                            const darkModeOverlay = document.getElementById('darkModeOverlay');
+                            const bgSwitchBtn = document.querySelector('.bg-switch-btn');
+                            const extensionLink = document.querySelector('.extension-link');
 
                             // 打开设置面板
                             settingsBtn.addEventListener('click', () => {
@@ -998,17 +1045,21 @@
                             function loadSettings() {
                                 // 加载壁纸设置
                                 const useDefaultWallpaperValue = localStorage.getItem('useDefaultWallpaper') !== 'false';
-                                const wallpaperPath = localStorage.getItem('wallpaperPath');
-                                const wallpaperData = JSON.parse(localStorage.getItem('customWallpapers') || '[]');
-                                
-                                // 更新壁纸设置UI
                                 useDefaultWallpaper.checked = useDefaultWallpaperValue;
-                                wallpaperPathInput.value = wallpaperPath || '';
-                                wallpaperPathContainer.style.display = useDefaultWallpaperValue ? 'none' : 'block';
-                                
+                                bgSwitchBtn.disabled = !useDefaultWallpaperValue;
+                                extensionLink.style.display = useDefaultWallpaperValue ? 'none' : 'block';
+
+                                // 加载暗色模式遮罩设置
+                                const darkModeOverlayValue = localStorage.getItem('darkModeOverlay') !== 'false';
+                                darkModeOverlay.checked = darkModeOverlayValue;
+                                if (darkModeOverlayValue) {
+                                    document.body.classList.add('dark-mode-overlay');
+                                } else {
+                                    document.body.classList.remove('dark-mode-overlay');
+                                }
+
                                 // 应用壁纸
                                 if (useDefaultWallpaperValue) {
-                                    // 使用默认壁纸
                                     const defaultWallpapers = [
                                         'images/HTC1.png',
                                         'images/HTC2.jpg',
@@ -1016,78 +1067,38 @@
                                     ];
                                     const currentIndex = parseInt(localStorage.getItem('currentBackgroundIndex') || '0');
                                     document.body.style.backgroundImage = `url('${defaultWallpapers[currentIndex]}')`;
-                                    // 移除可能存在的视频元素
                                     const existingVideo = document.body.querySelector('video');
                                     if (existingVideo) {
                                         existingVideo.remove();
                                     }
-                                } else {
-                                    // 使用自定义壁纸
-                                    if (wallpaperData.length > 0) {
-                                        const currentIndex = parseInt(localStorage.getItem('currentCustomWallpaperIndex') || '0');
-                                        const wallpaper = wallpaperData[currentIndex];
-                                        if (wallpaper.type === 'video') {
-                                            const video = document.createElement('video');
-                                            video.src = wallpaper.src;
-                                            video.loop = true;
-                                            video.muted = true;
-                                            video.playsInline = true;
-                                            applyWallpaper(video);
-                                        } else {
-                                            applyWallpaper(wallpaper.src);
-                                        }
-                                    }
                                 }
-                                
-                                // 加载分类显示设置
-                                const showAllCategoriesValue = localStorage.getItem('showAllCategories') !== 'false';
-                                showAllCategories.checked = showAllCategoriesValue;
-                                updateCategoriesVisibility(showAllCategoriesValue);
-                                
-                                // 加载暗色模式设置
-                                const isDarkMode = localStorage.getItem('darkMode') === 'true';
-                                document.body.classList.toggle('dark-mode', isDarkMode);
                             }
 
                             // 保存设置
                             function saveSettings() {
                                 // 保存壁纸设置
                                 const useDefaultWallpaperValue = useDefaultWallpaper.checked;
-                                const wallpaperPath = wallpaperPathInput.value;
-                                
                                 localStorage.setItem('useDefaultWallpaper', useDefaultWallpaperValue);
-                                localStorage.setItem('wallpaperPath', wallpaperPath);
-                                
-                                // 如果使用自定义壁纸，保存壁纸路径
-                                if (!useDefaultWallpaperValue) {
-                                    const wallpaperData = JSON.parse(localStorage.getItem('customWallpapers') || '[]');
-                                    if (wallpaperData.length > 0) {
-                                        localStorage.setItem('customWallpapers', JSON.stringify(wallpaperData));
-                                    }
+                                bgSwitchBtn.disabled = !useDefaultWallpaperValue;
+                                extensionLink.style.display = useDefaultWallpaperValue ? 'none' : 'block';
+
+                                // 保存暗色模式遮罩设置
+                                const darkModeOverlayValue = darkModeOverlay.checked;
+                                localStorage.setItem('darkModeOverlay', darkModeOverlayValue);
+                                if (darkModeOverlayValue) {
+                                    document.body.classList.add('dark-mode-overlay');
+                                } else {
+                                    document.body.classList.remove('dark-mode-overlay');
                                 }
-                                
-                                // 保存分类显示设置
-                                const showAllCategoriesValue = showAllCategories.checked;
-                                localStorage.setItem('showAllCategories', showAllCategoriesValue);
-                                
-                                // 保存暗色模式设置
-                                const isDarkMode = document.body.classList.contains('dark-mode');
-                                localStorage.setItem('darkMode', isDarkMode);
                             }
 
-                            // 更新分类显示状态
-                            function updateCategoriesVisibility(show) {
-                                const categories = document.querySelectorAll('.category-content');
-                                categories.forEach(category => {
-                                    category.style.display = show ? 'block' : 'none';
-                                });
-                                // 立即保存设置
+                            // 监听暗色模式遮罩开关变化
+                            darkModeOverlay.addEventListener('change', () => {
                                 saveSettings();
-                            }
+                            });
 
                             // 监听设置变化
                             useDefaultWallpaper.addEventListener('change', () => {
-                                wallpaperPathContainer.style.display = useDefaultWallpaper.checked ? 'none' : 'block';
                                 saveSettings();
                                 
                                 // 切换背景
@@ -1106,14 +1117,6 @@
                                     }
                                 }
                             });
-
-                            // 监听分类显示设置变化
-                            showAllCategories.addEventListener('change', () => {
-                                updateCategoriesVisibility(showAllCategories.checked);
-                            });
-
-                            // 选择文件夹
-                            selectPathBtn.addEventListener('click', selectWallpaperFolder);
 
                             // 页面加载时加载设置
                             loadSettings();
@@ -1161,19 +1164,17 @@
                 </label>
             </div>
             <div class="setting-item">
-                <label class="setting-label">显示所有分类</label>
+                <label class="setting-label">暗色模式遮罩</label>
                 <label class="switch">
-                    <input type="checkbox" id="showAllCategories" checked>
+                    <input type="checkbox" id="darkModeOverlay" checked>
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="setting-item wallpaper-path-container" style="display: none;">
-                <label class="setting-label">自定义壁纸路径</label>
-                <div class="path-input-container">
-                    <input type="text" id="wallpaperPath" readonly placeholder="请选择壁纸文件夹路径">
-                    <button class="select-path-btn">选择路径</button>
-                </div>
-                <p class="path-hint">支持的格式：PNG、JPG、MP4</p>
+            <div class="setting-item">
+                <p class="setting-hint">网站设置功能还在建设中...</p>
+            </div>
+            <div class="setting-item extension-link" style="display: none;">
+                <a href="https://cn.bing.com" target="_blank" class="extension-doc-link">查看扩展文档</a>
             </div>
         </div>
     </div>
